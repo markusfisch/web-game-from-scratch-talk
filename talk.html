@@ -1,0 +1,946 @@
+<!doctype html>
+<html class="Background">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<title>talk</title>
+<style>
+
+.Background
+{
+	background: #fff;
+	height: 100%;
+	margin: 0; padding: 0;
+	overflow: hidden;
+	font: 18pt sans-serif; color: #333;
+	font-weight: lighter;
+	letter-spacing: .2em;
+	line-height: 150%;
+}
+
+.Content
+{
+	margin: 0; padding: 0;
+}
+
+.Slides
+{
+	margin: 0; padding: 0;
+	list-style: none;
+}
+
+.Slide
+{
+	position: relative;
+	margin: 0; padding: 0;
+	height: 100vh;
+	-webkit-transform-style: preserve-3d;
+	transform-style: preserve-3d;
+}
+
+.SlideContent
+{
+	position: absolute;
+	top: 50%;
+	left: 0; right: 0;
+	-webkit-transform: translateY( -50% );
+	transform: translateY( -50% );
+	max-width: 30em;
+	margin: 0 auto; padding: 0 1em;
+	text-align: center;
+	outline: 0;
+}
+
+pre
+{
+	font: 12pt monospace;
+	text-align: left;
+}
+
+img
+{
+	max-width: 100%;
+}
+
+.Prev,
+.Next
+{
+	display: block;
+	position: absolute;
+	bottom: 0;
+	margin: 0; padding: 1em;
+	text-decoration: none;
+	color: #ddd;
+	font-weight: bolder;
+}
+
+.Prev
+{
+	left: 0;
+}
+
+.Next
+{
+	right: 0;
+}
+
+.Anchor
+{
+	display: block;
+	position: absolute;
+	left: 0; top: 0;
+}
+
+h1
+{
+	margin-top: 0;
+}
+
+h1, h2, h3
+{
+	line-height: 150%;
+}
+
+@media screen and (max-width: 400px), screen and (max-height: 400px)
+{
+	.Background
+	{
+		font-size: 8pt;
+	}
+}
+
+</style>
+</head>
+<body class="Content">
+<ul class="Slides">
+	<li class="Slide">
+		<a name="slide1" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h1>A Web Game From Scratch For A Game Jam</h1>
+		</div>
+		<a href="#slide2" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide2" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Why a web game?</h2>
+		</div>
+		<a href="#slide1" class="Prev">&lt;</a>
+		<a href="#slide3" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide3" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>What is a Game Jam?</h2>
+		</div>
+		<a href="#slide2" class="Prev">&lt;</a>
+		<a href="#slide4" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide4" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>The theme</h2>
+		</div>
+		<a href="#slide3" class="Prev">&lt;</a>
+		<a href="#slide5" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide5" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Are there HTML5 game frameworks?</h2>
+		</div>
+		<a href="#slide4" class="Prev">&lt;</a>
+		<a href="#slide6" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide6" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>But we'll keep it simple</h2>
+		</div>
+		<a href="#slide5" class="Prev">&lt;</a>
+		<a href="#slide7" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide7" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>How to start?</h2>
+		</div>
+		<a href="#slide6" class="Prev">&lt;</a>
+		<a href="#slide8" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide8" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>First, make a decision what game you want to make.</h3>
+		</div>
+		<a href="#slide7" class="Prev">&lt;</a>
+		<a href="#slide9" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide9" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Make a prototype.</h3>
+		</div>
+		<a href="#slide8" class="Prev">&lt;</a>
+		<a href="#slide10" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide10" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Then make graphics, music and levels.</h3>
+		</div>
+		<a href="#slide9" class="Prev">&lt;</a>
+		<a href="#slide11" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide11" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Pixel art? Vector graphics? 3D?</h2>
+		</div>
+		<a href="#slide10" class="Prev">&lt;</a>
+		<a href="#slide12" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide12" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Upsampling versus Pixel Art</h2>
+		</div>
+		<a href="#slide11" class="Prev">&lt;</a>
+		<a href="#slide13" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide13" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>High DPI</h2>
+		</div>
+		<a href="#slide12" class="Prev">&lt;</a>
+		<a href="#slide14" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide14" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Mobile</h2>
+		</div>
+		<a href="#slide13" class="Prev">&lt;</a>
+		<a href="#slide15" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide15" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>SVG scales great</h2>
+		</div>
+		<a href="#slide14" class="Prev">&lt;</a>
+		<a href="#slide16" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide16" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>gl.NEAREST</h2>
+		</div>
+		<a href="#slide15" class="Prev">&lt;</a>
+		<a href="#slide17" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide17" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Canvas, DOM, SVG oder WebGL?</h2>
+		</div>
+		<a href="#slide16" class="Prev">&lt;</a>
+		<a href="#slide18" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide18" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Canvas is okay</h2>
+		</div>
+		<a href="#slide17" class="Prev">&lt;</a>
+		<a href="#slide19" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide19" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>DOM only for a few elements</h2>
+		</div>
+		<a href="#slide18" class="Prev">&lt;</a>
+		<a href="#slide20" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide20" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>What about SVG?</h2>
+		</div>
+		<a href="#slide19" class="Prev">&lt;</a>
+		<a href="#slide21" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide21" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Anatomy of a 2D Canvas Game</h2>
+		</div>
+		<a href="#slide20" class="Prev">&lt;</a>
+		<a href="#slide22" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide22" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>HTML</h3>
+		</div>
+		<a href="#slide21" class="Prev">&lt;</a>
+		<a href="#slide23" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide23" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta name="viewport" content="width=device-width"/&gt;
+&lt;style&gt;
+...
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;canvas id="Game"&gt;Sorry, no game for you.&lt;/canvas&gt;
+&lt;script&gt;
+...
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+		</div>
+		<a href="#slide22" class="Prev">&lt;</a>
+		<a href="#slide24" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide24" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Stylesheet</h3>
+		</div>
+		<a href="#slide23" class="Prev">&lt;</a>
+		<a href="#slide25" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide25" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>html, body
+{
+    margin: 0; padding: 0;
+    overflow: hidden;
+    -ms-touch-action: none;
+}
+
+canvas
+{
+    position: fixed;
+    left: 0; right: 0;
+    top: 0; bottom: 0;
+}
+		</div>
+		<a href="#slide24" class="Prev">&lt;</a>
+		<a href="#slide26" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide26" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>JavaScript</h3>
+		</div>
+		<a href="#slide25" class="Prev">&lt;</a>
+		<a href="#slide27" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide27" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>"use strict"
+
+var canvas,
+    ctx,
+    width,
+    height,
+    now,
+    factor,
+    last,
+    pointersLength = 0,
+    pointersX = [],
+    pointersY = [],
+    keysDown = []
+
+function draw() {}
+function run() {}
+function init() {}
+		</div>
+		<a href="#slide26" class="Prev">&lt;</a>
+		<a href="#slide28" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide28" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Init</h3>
+		</div>
+		<a href="#slide27" class="Prev">&lt;</a>
+		<a href="#slide29" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide29" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function init()
+{
+    if( !(canvas = document.getElementById( "Game" )) ||
+        !(ctx = canvas.getContext( "2d" )) )
+        return
+
+    window.onresize = resize
+    resize()
+
+    ...
+
+    last = Date.now()-16
+    run()
+}
+		</div>
+		<a href="#slide28" class="Prev">&lt;</a>
+		<a href="#slide30" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide30" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Resize</h3>
+		</div>
+		<a href="#slide29" class="Prev">&lt;</a>
+		<a href="#slide31" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide31" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function resize()
+{
+    canvas.width = width = window.innerWidth
+    canvas.height = height = window.innerHeight
+
+    ...
+}
+		</div>
+		<a href="#slide30" class="Prev">&lt;</a>
+		<a href="#slide32" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide32" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>The main loop</h3>
+		</div>
+		<a href="#slide31" class="Prev">&lt;</a>
+		<a href="#slide33" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide33" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function run()
+{
+    requestAnimationFrame( run )
+
+    now = Date.now()
+    factor = (last-now)/16
+    last = now
+
+    input()
+    draw()
+}
+		</div>
+		<a href="#slide32" class="Prev">&lt;</a>
+		<a href="#slide34" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide34" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Input</h3>
+		</div>
+		<a href="#slide33" class="Prev">&lt;</a>
+		<a href="#slide35" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide35" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function input()
+{
+    if( pointersLength &gt; 0 )
+        move( pointersX[0] &gt; playerX ? step : -step )
+    else if( keysDown[37] )
+        move( -step )
+    else if( keysDown[39] )
+        move( step )
+}
+		</div>
+		<a href="#slide34" class="Prev">&lt;</a>
+		<a href="#slide36" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide36" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Draw</h3>
+		</div>
+		<a href="#slide35" class="Prev">&lt;</a>
+		<a href="#slide37" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide37" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function draw()
+{
+    ctx.fillRect( 0, 0, width, height )
+
+    ...
+}
+		</div>
+		<a href="#slide36" class="Prev">&lt;</a>
+		<a href="#slide38" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide38" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Touch and Mouse Input</h3>
+		</div>
+		<a href="#slide37" class="Prev">&lt;</a>
+		<a href="#slide39" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide39" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>{
+    var D = document
+
+    D.onmousedown = pointerDown
+    D.onmousemove = pointerMove
+    D.onmouseup = pointerUp
+    D.onmouseout = pointerUp
+
+    if( "ontouchstart" in D )
+    {
+        D.ontouchstart = pointerDown
+        D.ontouchmove = pointerMove
+        D.ontouchend = pointerUp
+        D.ontouchleave = pointerUp
+        D.ontouchcancel = pointerUp
+    }
+}
+		</div>
+		<a href="#slide38" class="Prev">&lt;</a>
+		<a href="#slide40" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide40" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Pointer down/move/up</h3>
+		</div>
+		<a href="#slide39" class="Prev">&lt;</a>
+		<a href="#slide41" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide41" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function pointerUp( event )
+{
+    setPointer( event, false )
+}
+
+function pointerMove( event )
+{
+    setPointer( event, pointerLength )
+}
+
+function pointerDown( event )
+{
+    setPointer( event, true )
+}
+		</div>
+		<a href="#slide40" class="Prev">&lt;</a>
+		<a href="#slide42" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide42" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Set pointer</h3>
+		</div>
+		<a href="#slide41" class="Prev">&lt;</a>
+		<a href="#slide43" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide43" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function setPointer( event, down )
+{
+    if( !down )
+    {
+        pointersLength = event.touches ?
+            event.touches.length :
+            0
+    }
+    else if( event.touches )
+    {
+        var touches = event.touches
+
+        pointersLength = touches.length
+
+        for( var n = pointersLength; n--; )
+        {
+            var t = touches[n];
+
+            pointersX[n] = t.pageX
+            pointersY[n] = t.pageY
+        }
+    }
+    else
+    {
+        pointersLength = 1
+        pointersX[0] = event.pageX
+        pointersY[0] = event.pageY
+    }
+
+    event.preventDefault()
+}
+		</div>
+		<a href="#slide42" class="Prev">&lt;</a>
+		<a href="#slide44" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide44" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Keyboard Input</h3>
+		</div>
+		<a href="#slide43" class="Prev">&lt;</a>
+		<a href="#slide45" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide45" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>{
+    var D = document
+
+    D.onkeydown = keyDown
+    D.onkeyup = keyUp
+}
+		</div>
+		<a href="#slide44" class="Prev">&lt;</a>
+		<a href="#slide46" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide46" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Set pressed keys</h3>
+		</div>
+		<a href="#slide45" class="Prev">&lt;</a>
+		<a href="#slide47" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide47" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function setKey( event, down )
+{
+    keysDown[event.keyCode] = down
+    event.preventDefault()
+}
+
+function keyUp( event )
+{
+    setKey( event, false )
+}
+
+function keyDown( event )
+{
+    setKey( event, true )
+}
+		</div>
+		<a href="#slide46" class="Prev">&lt;</a>
+		<a href="#slide48" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide48" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Tips</h2>
+		</div>
+		<a href="#slide47" class="Prev">&lt;</a>
+		<a href="#slide49" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide49" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Schedule onresize events</h3>
+		</div>
+		<a href="#slide48" class="Prev">&lt;</a>
+		<a href="#slide50" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide50" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>function scheduleResize()
+{
+    if( resizeTimer )
+        clearTimeout( resizeTimer )
+
+    resizeTimer = setTimeout( resize, 200 )
+}
+
+document.onresize = scheduleResize
+		</div>
+		<a href="#slide49" class="Prev">&lt;</a>
+		<a href="#slide51" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide51" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>All numbers are floats!</h3>
+		</div>
+		<a href="#slide50" class="Prev">&lt;</a>
+		<a href="#slide52" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide52" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>ctx.drawImage( sprite, x | 0, y | 0 )
+		</div>
+		<a href="#slide51" class="Prev">&lt;</a>
+		<a href="#slide53" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide53" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Object Properties and Array Indicies are slow</h3>
+		</div>
+		<a href="#slide52" class="Prev">&lt;</a>
+		<a href="#slide54" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide54" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>object.a.b.c()
+
+array[0][0][0]
+		</div>
+		<a href="#slide53" class="Prev">&lt;</a>
+		<a href="#slide55" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide55" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>var a = object.a,
+    b = a.b
+
+b.c()
+		</div>
+		<a href="#slide54" class="Prev">&lt;</a>
+		<a href="#slide56" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide56" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Avoid allocations</h3>
+		</div>
+		<a href="#slide55" class="Prev">&lt;</a>
+		<a href="#slide57" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide57" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>object = []
+
+object = {}
+
+new Object()
+		</div>
+		<a href="#slide56" class="Prev">&lt;</a>
+		<a href="#slide58" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide58" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Prerender</h3>
+		</div>
+		<a href="#slide57" class="Prev">&lt;</a>
+		<a href="#slide59" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide59" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Don't scale or rotate in the hot path</h3>
+		</div>
+		<a href="#slide58" class="Prev">&lt;</a>
+		<a href="#slide60" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide60" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Keep it simple!</h3>
+		</div>
+		<a href="#slide59" class="Prev">&lt;</a>
+		<a href="#slide61" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide61" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Texture atlas</h3>
+		</div>
+		<a href="#slide60" class="Prev">&lt;</a>
+		<a href="#slide62" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide62" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>devicePixelRatio / backingStorePixelRatio</h3>
+		</div>
+		<a href="#slide61" class="Prev">&lt;</a>
+		<a href="#slide63" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide63" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>ratio =
+    (window.devicePixelRatio || 1)/
+    (ctx.webkitBackingStorePixelRatio ||
+        ctx.mozBackingStorePixelRatio ||
+        ctx.msBackingStorePixelRatio ||
+        ctx.oBackingStorePixelRatio ||
+        ctx.backingStorePixelRatio ||
+        1)
+		</div>
+		<a href="#slide62" class="Prev">&lt;</a>
+		<a href="#slide64" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide64" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>width = window.innerWidth*ratio | 0
+height = window.innerHeight*ratio | 0
+
+for( var i = 0; i &lt; pointerLength; ++i )
+{
+    pointersX[i] = pointersX[i]*ratio | 0
+    pointersY[i] = pointersY[i]*ratio | 0
+}
+		</div>
+		<a href="#slide63" class="Prev">&lt;</a>
+		<a href="#slide65" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide65" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>ctx.fillRect() versus ctx.clearRect()</h3>
+		</div>
+		<a href="#slide64" class="Prev">&lt;</a>
+		<a href="#slide66" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide66" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>ctx.getContext( "2d", { alpha: false } )
+		</div>
+		<a href="#slide65" class="Prev">&lt;</a>
+		<a href="#slide67" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide67" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Use two canvas on top of each other</h3>
+		</div>
+		<a href="#slide66" class="Prev">&lt;</a>
+		<a href="#slide68" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide68" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h3>Avoid State-Changes</h3>
+		</div>
+		<a href="#slide67" class="Prev">&lt;</a>
+		<a href="#slide69" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide69" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<pre><code>// avoid state changes
+ctx.save()
+...
+ctx.restore()
+
+// group by path
+ctx.beginPath()
+...
+ctx.closePath()
+
+// group by fillStyle
+ctx.fillStyle = “red”;
+		</div>
+		<a href="#slide68" class="Prev">&lt;</a>
+		<a href="#slide70" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide70" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>WebAudio</h2>
+		</div>
+		<a href="#slide69" class="Prev">&lt;</a>
+		<a href="#slide71" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide71" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Profile</h2>
+		</div>
+		<a href="#slide70" class="Prev">&lt;</a>
+		<a href="#slide72" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide72" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Just do it!</h2>
+		</div>
+		<a href="#slide71" class="Prev">&lt;</a>
+		<a href="#slide73" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide73" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Ressources</h2>
+		</div>
+		<a href="#slide72" class="Prev">&lt;</a>
+		<a href="#slide74" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide74" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Questions?</h2>
+		</div>
+		<a href="#slide73" class="Prev">&lt;</a>
+		<a href="#slide75" class="Next">&gt;</a>
+	</li>
+	<li class="Slide">
+		<a name="slide75" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+<h2>Thanks!</h2>
+		</div>
+		<a href="#slide74" class="Prev">&lt;</a>
+</ul>
+<script>
+
+"use strict"
+
+function keyUp( ev )
+{
+	var e = ev || event
+
+	switch( e.keyCode )
+	{
+		case 37:
+			break
+		case 39:
+			break
+	}
+
+	e.stopPropagation()
+	e.preventDefault()
+	return false
+}
+
+window.onload = function()
+{
+	document.onkeyup = keyUp
+}
+
+</script>
+</body>
+</html>

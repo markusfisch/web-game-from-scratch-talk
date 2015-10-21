@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+
+# Close slide
+slide_close()
+{
+	cat <<EOF
+		</div>
+EOF
+	(( N-2 > 0 )) && cat <<EOF
+		<a href="#slide$(( N-2 ))" class="Prev">&lt;</a>
+EOF
+
+	[ $1 ] || cat <<EOF
+		<a href="#slide$(( N ))" class="Next">&gt;</a>
+	</li>
+EOF
+}
+
+# Open slide
+slide_open()
+{
+	cat <<EOF
+	<li class="Slide">
+		<a name="slide$N" class="Anchor">&nbsp;</a>
+		<div class="SlideContent">
+EOF
+}
+
+# Generate slides from HTML
+html_to_slides()
+{
+	local N=1 PRE=0
+
+	while read
+	do
+		case $REPLY in
+			*\</pre\>*)
+				PRE=0
+				;;
+			*\<pre\>*)
+				PRE=1
+				;&
+			*\<h[123]\>*)
+				(( $N > 1 )) && slide_close
+
+				slide_open
+				(( ++N ))
+
+				echo "$REPLY"
+				;;
+			'')
+				(( PRE )) && echo "$REPLY"
+				;;
+			*)
+				(( PRE )) && echo "$REPLY"
+				;;
+		esac
+	done
+
+	(( $N > 1 )) && slide_close true
+}
+
+# Print HTML frame
+html()
+{
+	cat <<EOF
+<!doctype html>
+<html class="Background">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<title>${NAME}</title>
+<style>
+
+.Background
+{
+	background: #fff;
+	height: 100%;
+	margin: 0; padding: 0;
+	overflow: hidden;
+	font: 18pt sans-serif; color: #333;
+	font-weight: lighter;
+	letter-spacing: .2em;
+	line-height: 150%;
+}
+
+.Content
+{
+	margin: 0; padding: 0;
+}
+
+.Slides
+{
+	margin: 0; padding: 0;
+	list-style: none;
+}
+
+.Slide
+{
+	position: relative;
+	margin: 0; padding: 0;
+	height: 100vh;
+	-webkit-transform-style: preserve-3d;
+	transform-style: preserve-3d;
+}
+
+.SlideContent
+{
+	position: absolute;
+	top: 50%;
+	left: 0; right: 0;
+	-webkit-transform: translateY( -50% );
+	transform: translateY( -50% );
+	max-width: 30em;
+	margin: 0 auto; padding: 0 1em;
+	text-align: center;
+	outline: 0;
+}
+
+pre
+{
+	font: 12pt monospace;
+	text-align: left;
+}
+
+img
+{
+	max-width: 100%;
+}
+
+.Prev,
+.Next
+{
+	display: block;
+	position: absolute;
+	bottom: 0;
+	margin: 0; padding: 1em;
+	text-decoration: none;
+	color: #ddd;
+	font-weight: bolder;
+}
+
+.Prev
+{
+	left: 0;
+}
+
+.Next
+{
+	right: 0;
+}
+
+.Anchor
+{
+	display: block;
+	position: absolute;
+	left: 0; top: 0;
+}
+
+h1
+{
+	margin-top: 0;
+}
+
+h1, h2, h3
+{
+	line-height: 150%;
+}
+
+@media screen and (max-width: 400px), screen and (max-height: 400px)
+{
+	.Background
+	{
+		font-size: 8pt;
+	}
+}
+
+</style>
+</head>
+<body class="Content">
+<ul class="Slides">
+`html_to_slides`
+</ul>
+<script>
+
+"use strict"
+
+function keyUp( ev )
+{
+	var e = ev || event
+
+	switch( e.keyCode )
+	{
+		case 37:
+			break
+		case 39:
+			break
+	}
+
+	e.stopPropagation()
+	e.preventDefault()
+	return false
+}
+
+window.onload = function()
+{
+	document.onkeyup = keyUp
+}
+
+</script>
+</body>
+</html>
+EOF
+}
+
+# Generate a HTML5 presentation for each Markdown file
+#
+# @param ... - Markdown files to convert into presentations
+generate()
+{
+	local MD
+
+	for MD in "$@"
+	do
+		[ -r "$MD" ] || {
+			echo "error: $MD does NOT exist" >&2
+			continue
+		}
+
+		local NAME=${MD##*/}
+		NAME=${NAME%.*}
+		NAME=${NAME//[_-]/ }
+
+		markdown $MD | html > ${MD%.*}'.html'
+	done
+}
+
+if [ $BASH_SOURCE == $0 ]
+then
+	if (( $# > 1 ))
+	then
+		echo "usage: ${0##*/} FILE..."
+	else
+		generate "$@"
+	fi
+fi
