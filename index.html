@@ -122,7 +122,7 @@ function draw()
 				explode( e )
 				player.life -= 10
 			}
-			else
+			else if( player.life > 0 )
 			{
 				var dx = player.x-e.x,
 					dy = player.y-e.y,
