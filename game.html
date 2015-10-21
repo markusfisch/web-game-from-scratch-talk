@@ -38,7 +38,6 @@ var M = Math,
 	width,
 	height,
 	stepX,
-	respawnY,
 	now,
 	factor,
 	last,
@@ -70,7 +69,9 @@ function explode( e )
 		vy = e.vy,
 		parts = 5
 
-	for( var n = debrisStart, l = n+debrisLength; n < l && parts > 0; ++n )
+	for( var n = debrisStart, l = n+debrisLength;
+		n < l && parts > 0;
+		++n )
 	{
 		var d = entities[n]
 
@@ -81,7 +82,7 @@ function explode( e )
 		d.x = ex+(M.random()*w | 0)
 		d.y = ey+(M.random()*h | 0)
 		d.vx = vx+M.random()
-		d.vy = vy+M.max( 1, M.random() )
+		d.vy = vy+M.max( 1, M.random()*stepX )
 		--parts
 	}
 
@@ -100,14 +101,7 @@ function draw()
 {
 	ctx.fillRect( 0, 0, width, height )
 
-	//var playerR = player.sprite.centerX
-	var sprite = player.sprite,
-		cx = sprite.centerX,
-		cy = sprite.centerY,
-		pl = player.x-cx,
-		pt = player.y-cy,
-		pr = player.x+cx,
-		pb = player.y+cy
+	var playerR = player.sprite.centerX
 
 	for( var n = entitiesLength; n--; )
 	{
@@ -131,26 +125,13 @@ function draw()
 			}
 			else
 			{
-				/*var dx = player.x-e.x,
+				var dx = player.x-e.x,
 					dy = player.y-e.y,
 					r = sprite.centerX+playerR
 
 				if( M.abs( dx ) < r &&
 					M.abs( dy ) < r &&
 					M.sqrt( dx*dx + dy*dy ) < r )
-					explode( e )*/
-
-				var cx = sprite.centerX,
-					cy = sprite.centerY,
-					l = e.x-cx,
-					t = e.y-cy,
-					r = e.x+cx,
-					b = e.y+cy
-
-				if( pl < r &&
-					pr > l &&
-					pt < b &&
-					pb > t )
 					explode( e )
 			}
 		}
@@ -341,8 +322,6 @@ function resize()
 
 	scale()
 	setup()
-
-	respawnY = height+sprites.enemy.centerY
 }
 
 function init()
