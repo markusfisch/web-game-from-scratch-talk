@@ -38,6 +38,7 @@ var M = Math,
 	height,
 	stepX,
 	scaleFactor,
+	lifeBar,
 	now,
 	factor,
 	last,
@@ -74,10 +75,10 @@ function explode( e )
 	{
 		var d = entities[n]
 
-		if( d.life >= 1 )
+		if( d.life > 0 )
 			continue
 
-		d.life = 10
+		d.life = 1
 		d.x = ex+(M.random()*w | 0)
 		d.y = ey+(M.random()*h | 0)
 		d.vx = vx+M.random()
@@ -98,7 +99,11 @@ function drawSprite( sprite, x, y )
 
 function draw()
 {
+	ctx.fillStyle = "#000"
 	ctx.fillRect( 0, 0, width, height )
+
+	ctx.fillStyle = "#fff"
+	ctx.fillRect( 0, 0, width*player.life, lifeBar )
 
 	var playerR = player.sprite.centerX
 
@@ -107,7 +112,7 @@ function draw()
 		var e = entities[n],
 			sprite = e.sprite
 
-		if( e.life < 1 )
+		if( e.life <= 0 )
 			continue;
 
 		if( e !== player )
@@ -116,11 +121,11 @@ function draw()
 			e.y += e.vy*factor
 
 			if( n >= debrisStart )
-				e.life -= factor
+				e.life -= factor*.1
 			else if( e.y > height )
 			{
 				explode( e )
-				player.life -= 10
+				player.life -= .1
 			}
 			else if( player.life > 0 )
 			{
@@ -276,13 +281,13 @@ function setup()
 			y: (M.random()*height*.01) | 0,
 			vx: M.random(),
 			vy: M.max( 1, M.random()*maxSpeed ),
-			life: 100 } )
+			life: 1 } )
 
 	entities.push( (player = {
 		sprite: playerSprite,
 		x: width >> 1,
 		y: height*.9 | 0,
-		life: 100 }) )
+		life: 1 }) )
 
 	debrisStart = entities.length
 	debrisLength = 20
@@ -302,6 +307,7 @@ function resize()
 
 	stepX = M.max( 1, width*.02 | 0 )
 	scaleFactor = M.min( width, height )*.1/64
+	lifeBar = M.max( 1, height*.01 | 0 )
 
 	setup()
 }
@@ -311,8 +317,6 @@ function init()
 	if( !(canvas = D.getElementById( "Canvas" )) ||
 		!(ctx = canvas.getContext( "2d" )) )
 		return
-
-	ctx.fillStyle = "#000"
 
 	W.onresize = resize
 	resize()
