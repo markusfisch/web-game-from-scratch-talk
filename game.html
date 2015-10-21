@@ -32,12 +32,12 @@ var M = Math,
 	D = document,
 	W = window,
 	atlas,
-	sprites = [],
 	canvas,
 	ctx,
 	width,
 	height,
 	stepX,
+	scaleFactor,
 	now,
 	factor,
 	last,
@@ -49,7 +49,6 @@ var M = Math,
 	entities = [],
 	debrisStart,
 	debrisLength,
-	debris = [],
 	player
 
 function reset( e )
@@ -82,7 +81,7 @@ function explode( e )
 		d.x = ex+(M.random()*w | 0)
 		d.y = ey+(M.random()*h | 0)
 		d.vx = vx+M.random()
-		d.vy = vy+M.max( 1, M.random()*stepX )
+		d.vy = vy+M.max( 1, M.random()*scaleFactor )
 		--parts
 	}
 
@@ -235,16 +234,44 @@ function keyDown( event )
 	setKey( event, true )
 }
 
+function getSprite( rc )
+{
+	var c = D.createElement( "canvas" ),
+		x = c.getContext( "2d" ),
+		w = rc.w*scaleFactor | 0,
+		h = rc.h*scaleFactor | 0
+
+	c.width = w
+	c.height = h
+	c.centerX = w >> 1
+	c.centerY = h >> 1
+
+	x.drawImage(
+		atlas,
+		rc.x,
+		rc.y,
+		rc.w,
+		rc.h,
+		0,
+		0,
+		w,
+		h )
+
+	return c
+}
+
 function setup()
 {
-	var maxSpeed = height*.01 | 0
+	var playerSprite = getSprite( { x: 0, y: 0, w: 64, h: 64 } ),
+		enemySprite = getSprite( { x: 64, y: 0, w: 64, h: 64 } ),
+		debrisSprite = getSprite( { x: 128, y: 0, w: 32, h: 32 } ),
+		maxSpeed = height*.01 | 0
 
 	entities.length = 0
-	debris.length = 0
 
 	for( var n = 10; n--; )
 		entities.push( {
-			sprite: sprites.enemy,
+			sprite: enemySprite,
 			x: M.random()*width | 0,
 			y: (M.random()*height*.01) | 0,
 			vx: M.random(),
@@ -252,7 +279,7 @@ function setup()
 			life: 100 } )
 
 	entities.push( (player = {
-		sprite: sprites.player,
+		sprite: playerSprite,
 		x: width >> 1,
 		y: height*.9 | 0,
 		life: 100 }) )
@@ -262,55 +289,10 @@ function setup()
 
 	for( var n = debrisLength; n--; )
 		entities.push( {
-			sprite: sprites.debris,
+			sprite: debrisSprite,
 			life: 0 } )
 
 	entitiesLength = entities.length
-}
-
-function scaleSprite( image, w, h, mirror )
-{
-	var c = D.createElement( "canvas" ),
-		x = c.getContext( "2d" ),
-		l = 0,
-		t = 0
-
-	c.width = w
-	c.height = h
-	c.centerX = w >> 1
-	c.centerY = h >> 1
-
-	if( mirror )
-	{
-		x.setTransform( -1, 0, 0, -1, 0, 0 )
-		l = -w
-		t = -h
-	}
-
-	x.drawImage(
-		image,
-		0,
-		0,
-		image.width,
-		image.height,
-		l,
-		t,
-		w,
-		h )
-
-	return c
-}
-
-function scale()
-{
-	var min = M.min( width, height ),
-		size = M.max( 8, min/10 | 0 )
-
-	sprites.player = scaleSprite( atlas, size, size );
-	sprites.enemy = scaleSprite( atlas, size, size, true );
-
-	size >>= 1;
-	sprites.debris = scaleSprite( atlas, size, size, true );
 }
 
 function resize()
@@ -319,8 +301,8 @@ function resize()
 	canvas.height = height = W.innerHeight
 
 	stepX = M.max( 1, width*.02 | 0 )
+	scaleFactor = M.min( width, height )*.1/64
 
-	scale()
 	setup()
 }
 
@@ -359,7 +341,7 @@ function init()
 function load()
 {
 	atlas = new Image()
-	atlas.src = "triangle.png"
+	atlas.src = "atlas.png"
 	atlas.onload = init
 }
 
