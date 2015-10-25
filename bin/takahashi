@@ -7,11 +7,11 @@ slide_close()
 		</div>
 EOF
 	(( N-2 > 0 )) && cat <<EOF
-		<a href="#slide$(( N-2 ))" class="Prev">&lt;</a>
+		<a href="#slide$(( N-2 ))" class="Prev">&#9664;</a>
 EOF
 
 	[ $1 ] || cat <<EOF
-		<a href="#slide$(( N ))" class="Next">&gt;</a>
+		<a href="#slide$(( N ))" class="Next">&#9654;</a>
 	</li>
 EOF
 }
@@ -26,33 +26,40 @@ slide_open()
 EOF
 }
 
+# Open a new slide, close the previous one
+slide_new()
+{
+	(( $N > 1 )) && slide_close
+
+	slide_open
+	(( ++N ))
+
+	echo "$REPLY"
+}
+
 # Generate slides from HTML
 html_to_slides()
 {
-	local N=1 PRE=0
+	local N=1 ECHO=0
 
 	while read
 	do
 		case $REPLY in
-			*\</pre\>*)
-				PRE=0
+			*\</pre\>*|*\</ul\>*)
+				ECHO=0
 				;;
-			*\<pre\>*)
-				PRE=1
-				;&
+			*\<pre\>*|*\<ul\>*)
+				ECHO=1
+				slide_new
+				;;
 			*\<h[123]\>*)
-				(( $N > 1 )) && slide_close
-
-				slide_open
-				(( ++N ))
-
-				echo "$REPLY"
+				slide_new
 				;;
 			'')
-				(( PRE )) && echo "$REPLY"
+				(( ECHO )) && echo "$REPLY"
 				;;
 			*)
-				(( PRE )) && echo "$REPLY"
+				(( ECHO )) && echo "$REPLY"
 				;;
 		esac
 	done
@@ -69,7 +76,7 @@ html()
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-<title>${NAME}</title>
+<title>${TITLE}</title>
 <style>
 
 .Background
@@ -80,7 +87,7 @@ html()
 	overflow: hidden;
 	font: 18pt sans-serif; color: #333;
 	font-weight: lighter;
-	letter-spacing: .2em;
+	letter-spacing: .05em;
 	line-height: 150%;
 }
 
@@ -115,17 +122,6 @@ html()
 	margin: 0 auto; padding: 0 1em;
 	text-align: center;
 	outline: 0;
-}
-
-pre
-{
-	font: 12pt monospace;
-	text-align: left;
-}
-
-img
-{
-	max-width: 100%;
 }
 
 .Prev,
@@ -167,6 +163,28 @@ h1, h2, h3
 	line-height: 150%;
 }
 
+a
+{
+	color: #4080ff;
+}
+
+ul
+{
+	list-style: none;
+}
+
+pre
+{
+	font: 12pt monospace;
+	letter-spacing: normal;
+	text-align: left;
+}
+
+img
+{
+	max-width: 100%;
+}
+
 @media screen and (max-width: 400px), screen and (max-height: 400px)
 {
 	.Background
@@ -185,27 +203,52 @@ h1, h2, h3
 
 "use strict"
 
-function keyUp( ev )
-{
-	var e = ev || event
+var slides = [],
+	current = 0
 
-	switch( e.keyCode )
+function jump( e )
+{
+	scrollTo( 0, e.offsetTop )
+}
+
+function keyUp( event )
+{
+	switch( event.keyCode )
 	{
 		case 37:
+			if( current > 0 )
+				jump( slides[--current] )
 			break
 		case 39:
+			if( current <= slides.length )
+				jump( slides[++current] )
 			break
 	}
 
-	e.stopPropagation()
-	e.preventDefault()
-	return false
+	event.stopPropagation()
+	event.preventDefault()
 }
 
-window.onload = function()
+function indexSlides()
 {
+	var elements = document.getElementsByTagName( "li" )
+
+	for( var n = 0, l = elements.length; n < l; ++n )
+	{
+		var e = elements[n]
+
+		if( e.className == "Slide" )
+			slides.push( e )
+	}
+}
+
+function init()
+{
+	indexSlides()
 	document.onkeyup = keyUp
 }
+
+window.onload = init
 
 </script>
 </body>
@@ -227,9 +270,9 @@ generate()
 			continue
 		}
 
-		local NAME=${MD##*/}
-		NAME=${NAME%.*}
-		NAME=${NAME//[_-]/ }
+		local TITLE=${MD##*/}
+		TITLE=${TITLE%.*}
+		TITLE=${TITLE//[_-]/ }
 
 		markdown $MD | html > ${MD%.*}'.html'
 	done

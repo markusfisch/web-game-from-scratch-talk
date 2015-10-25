@@ -6,26 +6,26 @@ A Web Game From Scratch For A Game Jam
 Because it runs everywhere.
 Because you want your game to be played.
 
-A web game means no installation.
-Simply type http my cool game dot com and play.
+A web game does not require installation or download.
+Simply type http my cool game dot com and you're good to go.
 
 ## What is a Game Jam?
 
-A short coding competition.
+A coding competition with constraints. Time or size.
 
-Some popular samples are:
+Some popular Game Jams are:
 
 * [Ludum Dare](http://ludumdare.com)
-* [js13kgames](http://js13kgames.com)
+* [js13kGames](http://js13kgames.com)
 * [0h Game Jam](http://0hgame.eu)
 * [One Game A Month](http://onegameamonth.com)
 
-## The theme
+## The Theme
 
-Game Jams very often give a theme to make sure everybody is doing the game
-for this very competition. So your game should match the theme in some way.
+Usually a Game Jam gives a theme to make sure everybody is doing the game
+for this very competition. Any game should match the theme in some way.
 
-A theme is also helpful to give a Jam direction.
+A theme is also helpful to give direction.
 
 ## Are there HTML5 game frameworks?
 
@@ -34,9 +34,9 @@ Plenty! The cool kids use:
 * [Phaser](http://phaser.io)
 * [PixiJs](http://pixijs.com)
 
-Phaser is on the verge to become the jQuery of HTML5 gaming.
+Phaser is on the verge of becoming the jQuery of HTML5 gaming.
 
-In fact, there are so many engines, there's a site for them:
+Actually, there are so many HTML5 engines, there's:
 
 * [html5gameengine.com](http://html5gameengine.com)
 
@@ -47,30 +47,37 @@ You simply don't need a framework to make a simple game.
 And it's better to start bottom up to understand what really matters
 and what does not.
 
+Also, when size is a constraint, we may not want to include a framework
+of library because of its size.
+
 ## How to start?
 
 ### First, make a decision what game you want to make.
 
 Don't laugh, usually that's quite hard. Been there, done that.
-You'll have plenty ideas, each one just not good enough.
-Or maybe equally good.
+You'll have plenty ideas. Each one just not good enough.
+Or maybe they're equally good. Tough choices.
 
 Making the decision early is vital. If you hesitate too long, there won't
 be enough time to make it.
 
 Speaking of Ludum Dare, for example, you should have decided on what game you
-want to do by saturday noon. That's roughly one quarter in and if you hesitate
-beyond this point, there simply won't be enough time.
+want to make by saturday noon. That's roughly one quarter in and if you
+hesitate beyond this point, you most likely will run out of time.
 
 ### Make a prototype.
 
-Try to make incremental steps. Go from one working prototype to the next.
+Try to develop in incremental steps.
+Go from one working prototype to the next.
+Always try to have a "playable" state.
+
+Actually seeing your idea work is greatly inspiring.
 
 ### Then make graphics, music and levels.
 
 Order is not important. But if your game has levels, I would start with that.
 It's better to have an ugly game you can play than having a beautiful one you
-can't play. Trust me. I can give examples.
+can't play. Trust me.
 
 ## Pixel art? Vector graphics? 3D?
 
@@ -80,23 +87,35 @@ But generally, pixel art is a good way to start. It's quite easy to get
 mediocre results, simply because there are just a few pixels to set.
 
 Which doesn't mean pixel art is easy. There are some really impressive
-artists out there.
+artists out there. Great inspiration.
 
 ## Upsampling versus Pixel Art
 
-Traditionally, scaling images up in a browser makes them blurry.
-That is, of course, unwanted for pixel art.
+Why is upscaling important? Well, in order to support as many screens
+as possible, it's best to span the canvas over the full viewport.
+
+Working with a fixed size canvas doesn't work well on mobile devices
+for obvious reasons.
+
+In order to render on a canvas with undefined size and proportions,
+you'll want to scale your assets up or down depending on the size of
+the canvas.
+
+If you're making a platformer, the player entity should always have
+the same relative size to the height of the canvas for example.
+
+Traditionally, upscaling images in a browser gives blurry results
+unfortunately. This is very unwanted for pixel art, of course.
 
 Until recently, the only way to scale an image up and have crisp edges was
 to manually rebuild the bigger image from the smaller one. Pixel by pixel.
 It's not that bad as it sounds because you'd do that only once, when your
-game starts.
+game starts. And it can also be a possibility to fine tune those pixels.
 
-Now, there's a new CSS property you can use for that:
+Now, there's also a new CSS property to tell the browser you want
+to scale pixelated:
 
 image-rendering: pixelated;
-
-For some background vist [Drawing pixels is hard](http://phoboslab.org/log/2012/09/drawing-pixels-is-hard).
 
 ## High DPI
 
@@ -114,13 +133,12 @@ As Larry Page put it:
 Good thing is, it's quite easy to support mobiles too.
 Canvas performance is quite good.
 
-Although - it varies over time.
+Although it varies over time. Not long ago, a Google Chrome update
+totally broke Canvas rendering for some mobile devices.
+Fortunately, that got fixed only a couple of month later.
+You see the problem.
 
-Not long ago, a Google Chrome update totally broke Canvas rendering for some
-mobile devices. Fortunately, that got fixed a couple of month later.
-But you see the problem.
-
-Still, I believe, the web is the best bet when it comes to range.
+Still, I think the web is the best option when it comes to range.
 
 ## SVG scales great
 
@@ -131,19 +149,19 @@ Well, not easily that is. More on that later.
 
 Scaling is at the very heart of WebGL.
 So no problems with blurred images there.
+But WebGL requires some background.
 
 ## Canvas, DOM, SVG oder WebGL?
 
 WebGL is fastest:
 
-* [Demo](http://hhsw.de/sites/proto/webgl)
-* [Play Keep out](http://playkeepout.com)
+* [Keep Out!](http://playkeepout.com)
 * [HexGL](http://hexgl.bkcore.com/play)
 * [BMW i8](http://playcanv.as/p/RqJJ9oU9?overlay=false)
 
-If you want to render many elements, there's no alternative.
+If you want to render a lot of elements, there's no alternative.
 And WebGL is supported by default now.
-But it doesn't run on all devices, of course.
+But that doesn't mean it runs on all devices, of course.
 
 It's modern graphics programming. You have GLSL shaders and you translate,
 scale and rotate by matrix math. Requires some background on the topic.
@@ -154,13 +172,13 @@ scale and rotate by matrix math. Requires some background on the topic.
 * [Galex](http://galex.markusfisch.de)
 * [Gingerman](http://gingerman.markusfisch.de)
 
-On the desktop, performance varys greatly.
+On the desktop, performance varies greatly.
 But if you don't have too many elements, it can be okay.
-Support is much better than with WebGL and you can reach even older
-smartphones and computers.
+Support is much better than WebGL and you can reach even older
+smartphones, computers and maybe even your TV or fridge.
 
-It's classical graphic programming. 0/0 is left/top, you can have alpha
-blending but drawing primitives is slow, of course.
+It's classical graphic programming. 0/0 is in the left/top corner,
+you can have alpha blending and drawing primitives is slow, of course.
 
 ## DOM only for a few elements
 
@@ -168,31 +186,34 @@ blending but drawing primitives is slow, of course.
 * [Santa Tracker](http://santatracker.google.com)
 
 Can be okay for games with very few elements.
-Scaling won't be a problem.
-You can use jQuery and every image format browsers know.
+Scaling won't be that much of a problem.
+And you can use jQuery (or whatever framework you're used to)
+and every image format browsers know.
 
 ## What about SVG?
 
-Well, that's largely uncharted territory.
-Since it's always slower to draw shapes than to copy memory, don't
-expect too much. But if you have realtively few, very dynamic elements
-it can be an option.
+Since it's always slower to draw shapes than to copy memory (images),
+don't expect too much. But if you have realtively few, very dynamic elements,
+it can be an option. Here are some interesting examples:
 
 * [Simple SVG Game](http://david.blob.core.windows.net/html5graphics/010_SimpleGame_SVGVersion.htm) ([Canvas implementation](http://david.blob.core.windows.net/html5graphics/009_SimpleGame_CanvasVersion.htm))
 * [Animation Benchmark](http://themaninblue.com/experiment/AnimationBenchmark/svg/?particles=1000) ([Canvas implementation](http://themaninblue.com/experiment/AnimationBenchmark/canvas/?particles=1000))
-* [SVG guide](http://www.sitepoint.com/the-complete-guide-to-building-html5-games-with-canvas-and-svg)
 
 ## Anatomy of a 2D Canvas Game
 
 Now that we have an overview, we want to have a look on the anatomy of
 a simple 2D Canvas game.
 
+We're going to use Canvas because its very often the best choice between
+support and performance. But that always depends on the game you want
+to make. Especially on how many moving elements that game requires.
+
 ### HTML
 
 	<!doctype html>
 	<html>
 	<head>
-	<meta name="viewport" content="width=device-width"/>
+	<meta name="viewport" content="width=device-width, user-scalable=0"/>
 	<style>
 	...
 	</style>
@@ -305,22 +326,20 @@ a simple 2D Canvas game.
 
 ### Touch and Mouse Input
 
+	var D = document
+
+	D.onmousedown = pointerDown
+	D.onmousemove = pointerMove
+	D.onmouseup = pointerUp
+	D.onmouseout = pointerUp
+
+	if( "ontouchstart" in D )
 	{
-		var D = document
-
-		D.onmousedown = pointerDown
-		D.onmousemove = pointerMove
-		D.onmouseup = pointerUp
-		D.onmouseout = pointerUp
-
-		if( "ontouchstart" in D )
-		{
-			D.ontouchstart = pointerDown
-			D.ontouchmove = pointerMove
-			D.ontouchend = pointerUp
-			D.ontouchleave = pointerUp
-			D.ontouchcancel = pointerUp
-		}
+		D.ontouchstart = pointerDown
+		D.ontouchmove = pointerMove
+		D.ontouchend = pointerUp
+		D.ontouchleave = pointerUp
+		D.ontouchcancel = pointerUp
 	}
 
 ### Pointer down/move/up
@@ -376,12 +395,10 @@ a simple 2D Canvas game.
 
 ### Keyboard Input
 
-	{
-		var D = document
+	var D = document
 
-		D.onkeydown = keyDown
-		D.onkeyup = keyUp
-	}
+	D.onkeydown = keyDown
+	D.onkeyup = keyUp
 
 ### Set pressed keys
 
@@ -400,6 +417,14 @@ a simple 2D Canvas game.
 	{
 		setKey( event, true )
 	}
+
+## Demo
+
+That was a lot of boring code. Now have a look at all that in action:
+
+* [Play](index.html)
+
+View the source.
 
 ## Tips
 
@@ -460,29 +485,36 @@ So try to avoid any of that in the hot path:
 ### Prerender
 
 Draw frequently used elements in a Canvas element and draw this with
-ctx.drawImage( sprite, x, y ).
+
+	ctx.drawImage( sprite, x | 0, y | 0 ).
 
 Working with (rastered) images is always the fastest way to draw.
 
 ### Don't scale or rotate in the hot path
 
 Scaling and rotating are expensive operations in Canvas.
-It's better to prerender necessary assets and just draw those.
+It's better to prerender those transformations and simply use those images.
 
 ### Keep it simple!
 
 IIFE ([Immediately-Invoked Function Expression](http://benalman.com/news/2010/11/immediately-invoked-function-expression))
 doesn't make much sense on a single page game.
 
-Don't overcomplicate things. Try not to use OO. For a small, simple game,
-it's just not worth the overhead.
+Don't overcomplicate things. Try not to use OO.
+For a small, simple game, it's just not worth the overhead.
+
+As everybody knows, keeping things simple is the key to good software
+and a time constraint competition is not an exception.
 
 ### Texture atlas
 
 Use a texture atlas, also known as a sprite sheet, to manage game assets.
 It's smaller, faster and chances are you want to resize the assets anyway
-so ctx.drawImage( src, sx, sy, sw, sh, dst, dx, dy, dw, dh ) is a perfect
-fit.
+because
+
+	ctx.drawImage( src, sx, sy, sw, sh, dst, dx, dy, dw, dh )
+
+is a perfect fit.
 
 Also, when you intend to work with WebGL some day, it's probably a good
 idea to get used to the idea of a texture atlas.
@@ -512,23 +544,30 @@ With that, you can multiply the dimensions and locations:
 		pointersY[i] = pointersY[i]*ratio | 0
 	}
 
-The reason why there is devicePixelRatio and backingStorePixelRatio,
-you may read [here](http://phoboslab.org/log/2012/09/drawing-pixels-is-hard).
+The reason why there is a devicePixelRatio and a backingStorePixelRatio,
+you can read [here](http://phoboslab.org/log/2012/09/drawing-pixels-is-hard).
 
 ### ctx.fillRect() versus ctx.clearRect()
 
+The background of a transparent 2D context is undefined.
+Undefined does not mean black.
+
+So when we are using a 2D context with alpha set to false
+
 	ctx.getContext( "2d", { alpha: false } )
 
-The background of a 2D context is undefined. Undefined does not mean black.
-So when we are using a 2D context with alpha set to false to speed up rendering,
-it's important to fill the canvas explicitly.
+to speed up rendering (in theory), it's important to fill the
+canvas explicitly because we never know what background color
+the browser sets. Chrome used to draw black. Now it's white
+(at least on some platforms).
 
 ### Use two canvas on top of each other
 
-To speed up drawing, you may draw the immoveable background in a background
+To speed up drawing, you may draw the immovable background in a background
 Canvas element and the action in a Canvas element on top of it.
 
-Since browsers are very good at composing elements, this can be quite effective.
+Since browsers are very good at composing elements, this can be quite
+effective.
 
 ### Avoid State-Changes
 
@@ -551,16 +590,18 @@ Read more on [Canvas Performance](http://www.html5rocks.com/en/tutorials/canvas/
 
 ## WebAudio
 
+Use the WebAudio API to play sound. Very simple.
+
 * [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 * [Using Web Audio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API)
 
 ## Profile
 
-Don't pre-optimize. Test, then optimize.
+Don't pre-optimize. Test, profile, then optimize.
 
 ## Just do it!
 
-It's really fun to write your own little game. Try it!
+It's really great big fun to write your own game!
 
 ## Ressources
 
@@ -570,6 +611,7 @@ It's really fun to write your own little game. Try it!
 * [Optimizing for Firefox OS](https://hacks.mozilla.org/2013/05/optimizing-your-javascript-game-for-firefox-os)
 * [Canvas Cheat Sheet](https://simon.html5.org/dump/html5-canvas-cheat-sheet.html)
 * [HTML5 Game Devs](http://www.html5gamedevs.com)
+* [SVG guide](http://www.sitepoint.com/the-complete-guide-to-building-html5-games-with-canvas-and-svg)
 
 ## Questions?
 

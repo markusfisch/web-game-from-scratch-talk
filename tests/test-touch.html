@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<title>Test</title>
+<style>
+
+html, body
+{
+	margin: 0; padding: 0;
+	overflow: hidden;
+}
+
+canvas
+{
+	position: fixed;
+	left: 0; right: 0;
+	top: 0; bottom: 0;
+}
+
+</style>
+</head>
+<body>
+<canvas id="Canvas">Sorry, this browser cannot render this.</canvas>
+<script>
+
+"use strict"
+
+var M = Math,
+	D = document,
+	W = window,
+	canvas,
+	ctx,
+	width,
+	height,
+	size,
+	pointerLength,
+	pointerX = [],
+	pointerY = []
+
+M.TAU = M.TAU || M.PI*2
+
+function draw()
+{
+	ctx.fillStyle = "#111"
+	ctx.fillRect( 0, 0, width, height )
+
+	ctx.fillStyle = "#fff"
+
+	for( var n = pointerLength; n--; )
+	{
+		ctx.beginPath()
+		ctx.arc(
+			pointerX[n],
+			pointerY[n],
+			size,
+			0,
+			M.TAU,
+			true )
+		ctx.fill()
+	}
+}
+
+function run()
+{
+	requestAnimationFrame( run )
+
+	draw()
+}
+
+function setPointer( event, down )
+{
+	if( !down )
+	{
+		pointerLength = event.touches ?
+			event.touches.length :
+			0
+	}
+	else if( event.touches )
+	{
+		var touches = event.touches
+
+		pointerLength = touches.length
+
+		for( var n = pointerLength; n--; )
+		{
+			var t = touches[n]
+
+			pointerX[n] = t.pageX
+			pointerY[n] = t.pageY
+		}
+	}
+	else
+	{
+		pointerLength = 1
+		pointerX[0] = event.pageX
+		pointerY[0] = event.pageY
+	}
+}
+
+function pointerUp( event )
+{
+	setPointer( event, false )
+}
+
+function pointerMove( event )
+{
+	setPointer( event, pointerLength )
+}
+
+function pointerDown( event )
+{
+	setPointer( event, true )
+}
+
+function resize()
+{
+	canvas.width = width = W.innerWidth
+	canvas.height = height = W.innerHeight
+
+	size = M.min( width, height )*.1 | 0
+}
+
+function init()
+{
+	if( !(canvas = D.getElementById( "Canvas" )) ||
+		!(ctx = canvas.getContext( "2d" )) )
+		return
+
+	W.onresize = resize
+	resize()
+
+	D.onmousedown = pointerDown
+	D.onmousemove = pointerMove
+	D.onmouseup = pointerUp
+	D.onmouseout = pointerUp
+
+	if( "ontouchstart" in D )
+	{
+		D.ontouchstart = pointerDown
+		D.ontouchmove = pointerMove
+		D.ontouchend = pointerUp
+		D.ontouchleave = pointerUp
+		D.ontouchcancel = pointerUp
+	}
+
+	run()
+}
+
+W.onload = init
+
+</script>
+</body>
+</html>
