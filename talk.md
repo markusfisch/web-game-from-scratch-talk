@@ -422,7 +422,7 @@ to make. Especially on how many moving elements that game requires.
 
 That was a lot of boring code. Now have a look at all that in action:
 
-* [Play](index.html)
+* [Run](http://markusfisch.github.io/web-game-from-scratch-talk/canvas.html)
 
 View the source.
 

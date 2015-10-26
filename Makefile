@@ -1,2 +1,3 @@
 talk:
-	./bin/takahashi talk.md
+	takahashi talk.md
+	mv talk.html index.html
