@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width"/>
-<title>A Canvas Game From Scratch</title>
+<title>2D Canvas Game From Scratch</title>
 <style>
 
 html,
@@ -38,7 +38,6 @@ var M = Math,
 	height,
 	stepX,
 	scaleFactor,
-	lifeBar,
 	now,
 	factor,
 	last,
@@ -54,8 +53,8 @@ var M = Math,
 
 function reset( e )
 {
-	e.y = -e.sprite.height
 	e.x = M.random()*width
+	e.y = -e.sprite.height
 }
 
 function explode( e )
@@ -81,7 +80,7 @@ function explode( e )
 		d.life = 1
 		d.x = ex+(M.random()*w | 0)
 		d.y = ey+(M.random()*h | 0)
-		d.vx = vx+M.random()
+		d.vx = vx+M.random()*scaleFactor
 		d.vy = vy+M.max( 1, M.random()*scaleFactor )
 		--parts
 	}
@@ -102,9 +101,6 @@ function draw()
 	ctx.fillStyle = "#000"
 	ctx.fillRect( 0, 0, width, height )
 
-	ctx.fillStyle = "#fff"
-	ctx.fillRect( 0, 0, width*player.life, lifeBar )
-
 	var playerR = player.sprite.centerX
 
 	for( var n = entitiesLength; n--; )
@@ -113,7 +109,7 @@ function draw()
 			sprite = e.sprite
 
 		if( e.life <= 0 )
-			continue;
+			continue
 
 		if( e !== player )
 		{
@@ -123,10 +119,7 @@ function draw()
 			if( n >= debrisStart )
 				e.life -= factor*.1
 			else if( e.y > height )
-			{
 				explode( e )
-				player.life -= .1
-			}
 			else if( player.life > 0 )
 			{
 				var dx = player.x-e.x,
@@ -192,7 +185,7 @@ function setPointer( event, down )
 
 		for( var n = pointersLength; n--; )
 		{
-			var t = touches[n];
+			var t = touches[n]
 
 			pointersX[n] = t.pageX
 			pointersY[n] = t.pageY
@@ -270,7 +263,7 @@ function setup()
 	var playerSprite = getSprite( { x: 0, y: 0, w: 64, h: 64 } ),
 		enemySprite = getSprite( { x: 64, y: 0, w: 64, h: 64 } ),
 		debrisSprite = getSprite( { x: 0, y: 64, w: 32, h: 32 } ),
-		maxSpeed = height*.01 | 0
+		maxSpeed = M.round( height*.005 )
 
 	entities.length = 0
 
@@ -279,7 +272,7 @@ function setup()
 			sprite: enemySprite,
 			x: M.random()*width | 0,
 			y: (M.random()*height*.01) | 0,
-			vx: M.random(),
+			vx: M.random()-.5,
 			vy: M.max( 1, M.random()*maxSpeed ),
 			life: 1 } )
 
@@ -307,7 +300,6 @@ function resize()
 
 	stepX = M.max( 1, width*.02 | 0 )
 	scaleFactor = M.min( width, height )*.1/64
-	lifeBar = M.max( 1, height*.01 | 0 )
 
 	setup()
 }
