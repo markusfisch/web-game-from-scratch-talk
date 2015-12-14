@@ -47,7 +47,9 @@ void main()
 </script>
 <script id="FragmentShader" type="x-shader/x-fragment">
 
-#ifdef GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
 #endif
 
@@ -321,7 +323,7 @@ function keyDown( event )
 	setKey( event, true )
 }
 
-function scale( sprite, size )
+function scale( sprite )
 {
 	var size = sprite.size*scaleFactor
 
@@ -333,9 +335,8 @@ function setup()
 {
 	entities.length = 0
 
-	scale( sprites.enemy )
-	scale( sprites.player )
-	scale( sprites.debris )
+	for( var name in sprites )
+		scale( sprites[name] )
 
 	var maxSpeed = ratio*-.01
 
@@ -556,25 +557,17 @@ function createTextureFrom( image )
 	gl.texParameteri(
 		gl.TEXTURE_2D,
 		gl.TEXTURE_MIN_FILTER,
-		gl.NEAREST_MIPMAP_LINEAR )
+		gl.LINEAR_MIPMAP_LINEAR )
 	gl.texParameteri(
 		gl.TEXTURE_2D,
 		gl.TEXTURE_MAG_FILTER,
-		gl.NEAREST_MIPMAP_LINEAR )
+		gl.LINEAR )
 
 	gl.generateMipmap( gl.TEXTURE_2D )
 
 	gl.bindTexture( gl.TEXTURE_2D, null )
 
 	return t
-}
-
-function createTexture()
-{
-	gl.enable( gl.BLEND )
-	gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA )
-
-	return createTextureFrom( atlas )
 }
 
 function init()
@@ -596,12 +589,14 @@ function init()
 		return
 	}
 
-	if( !(texture = createTexture()) )
+	if( !(texture = createTextureFrom( atlas )) )
 	{
 		alert( "Cannot initialize atlas texture" )
 		return
 	}
 
+	gl.enable( gl.BLEND )
+	gl.blendFunc( gl.ONE, gl.ONE_MINUS_SRC_ALPHA )
 	gl.clearColor( 0, 0, 0, 1 )
 
 	initBuffers( program )
