@@ -1,3 +1,2 @@
-talk:
-	takahashi talk.md
-	mv talk.html index.html
+slides:
+	takahashi notes.md > index.html
