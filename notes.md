@@ -228,15 +228,13 @@ to make. Especially on how many moving elements that game requires.
 
 ### Stylesheet
 
-	html, body
-	{
+	html, body {
 		margin: 0; padding: 0;
 		overflow: hidden;
 		-ms-touch-action: none;
 	}
 
-	canvas
-	{
+	canvas {
 		position: fixed;
 		left: 0; right: 0;
 		top: 0; bottom: 0;
@@ -264,25 +262,24 @@ to make. Especially on how many moving elements that game requires.
 
 ### Init
 
-	function init()
-	{
-		if( !(canvas = document.getElementById( "Game" )) ||
-			!(ctx = canvas.getContext( "2d" )) )
+	function init() {
+		if (!(canvas = document.getElementById("Game")) ||
+			!(ctx = canvas.getContext("2d"))) {
 			return
+		}
 
 		window.onresize = resize
 		resize()
 
 		...
 
-		last = Date.now()-16
+		last = Date.now() - 16
 		run()
 	}
 
 ### Resize
 
-	function resize()
-	{
+	function resize() {
 		canvas.width = width = window.innerWidth
 		canvas.height = height = window.innerHeight
 
@@ -291,12 +288,11 @@ to make. Especially on how many moving elements that game requires.
 
 ### The main loop
 
-	function run()
-	{
-		requestAnimationFrame( run )
+	function run() {
+		requestAnimationFrame(run)
 
 		now = Date.now()
-		factor = (last-now)/16
+		factor = (last - now) / 16
 		last = now
 
 		input()
@@ -305,21 +301,20 @@ to make. Especially on how many moving elements that game requires.
 
 ### Input
 
-	function input()
-	{
-		if( pointersLength > 0 )
-			move( pointersX[0] > playerX ? step : -step )
-		else if( keysDown[37] )
-			move( -step )
-		else if( keysDown[39] )
-			move( step )
+	function input() {
+		if (pointersLength > 0) {
+			move(pointersX[0] > playerX ? step : -step)
+		} else if (keysDown[37]) {
+			move(-step)
+		} else if (keysDown[39]) {
+			move(step)
+		}
 	}
 
 ### Draw
 
-	function draw()
-	{
-		ctx.fillRect( 0, 0, width, height )
+	function draw() {
+		ctx.fillRect(0, 0, width, height)
 
 		...
 	}
@@ -333,8 +328,7 @@ to make. Especially on how many moving elements that game requires.
 	D.onmouseup = pointerUp
 	D.onmouseout = pointerUp
 
-	if( "ontouchstart" in D )
-	{
+	if ("ontouchstart" in D) {
 		D.ontouchstart = pointerDown
 		D.ontouchmove = pointerMove
 		D.ontouchend = pointerUp
@@ -344,47 +338,37 @@ to make. Especially on how many moving elements that game requires.
 
 ### Pointer down/move/up
 
-	function pointerUp( event )
-	{
-		setPointer( event, false )
+	function pointerUp(event) {
+		setPointer(event, false)
 	}
 
-	function pointerMove( event )
-	{
-		setPointer( event, pointerLength )
+	function pointerMove(event) {
+		setPointer(event, pointerLength)
 	}
 
-	function pointerDown( event )
-	{
-		setPointer( event, true )
+	function pointerDown(event) {
+		setPointer(event, true)
 	}
 
 ### Set pointer
 
-	function setPointer( event, down )
-	{
-		if( !down )
-		{
+	function setPointer(event, down) {
+		if (!down) {
 			pointersLength = event.touches ?
 				event.touches.length :
 				0
-		}
-		else if( event.touches )
-		{
+		} else if (event.touches) {
 			var touches = event.touches
 
 			pointersLength = touches.length
 
-			for( var n = pointersLength; n--; )
-			{
+			for(var i = pointersLength; n--;) {
 				var t = touches[n];
 
-				pointersX[n] = t.pageX
-				pointersY[n] = t.pageY
+				pointersX[i] = t.pageX
+				pointersY[i] = t.pageY
 			}
-		}
-		else
-		{
+		} else {
 			pointersLength = 1
 			pointersX[0] = event.pageX
 			pointersY[0] = event.pageY
@@ -402,20 +386,17 @@ to make. Especially on how many moving elements that game requires.
 
 ### Set pressed keys
 
-	function setKey( event, down )
-	{
+	function setKey(event, down) {
 		keysDown[event.keyCode] = down
 		event.preventDefault()
 	}
 
-	function keyUp( event )
-	{
-		setKey( event, false )
+	function keyUp(event) {
+		setKey(event, false)
 	}
 
-	function keyDown( event )
-	{
-		setKey( event, true )
+	function keyDown(event) {
+		setKey(event, true)
 	}
 
 ## Demo
@@ -431,12 +412,12 @@ View the source.
 
 ### Schedule onresize events
 
-	function scheduleResize()
-	{
-		if( resizeTimer )
-			clearTimeout( resizeTimer )
+	function scheduleResize() {
+		if (resizeTimer) {
+			clearTimeout(resizeTimer)
+		}
 
-		resizeTimer = setTimeout( resize, 200 )
+		resizeTimer = setTimeout(resize, 200)
 	}
 
 	document.onresize = scheduleResize
@@ -445,7 +426,7 @@ View the source.
 
 When drawing on a Canvas, always make sure to use integers:
 
-	ctx.drawImage( sprite, x | 0, y | 0 )
+	ctx.drawImage(sprite, x | 0, y | 0)
 
 Canvas will try to interpolate an image if you give floats which results
 in blurry images. Have a look at [HTML5 canvas optimisation](http://seb.ly/2011/02/html5-canvas-sprite-optimisation).
@@ -487,7 +468,7 @@ So try to avoid any of that in the hot path:
 
 Draw frequently used elements in a Canvas element and draw this with
 
-	ctx.drawImage( sprite, x | 0, y | 0 ).
+	ctx.drawImage(sprite, x | 0, y | 0)
 
 Working with (rastered) images is always the fastest way to draw.
 
@@ -513,7 +494,9 @@ Use a texture atlas, also known as a sprite sheet, to manage game assets.
 It's smaller, faster and chances are you want to resize the assets anyway
 because
 
-	ctx.drawImage( src, sx, sy, sw, sh, dst, dx, dy, dw, dh )
+	ctx.drawImage(
+		src, sx, sy, sw, sh,
+		dst, dx, dy, dw, dh)
 
 is a perfect fit.
 
@@ -526,7 +509,7 @@ Canvas on a High DPI display does have some properties to get the pixel
 ratio between "web" pixels and true pixels:
 
 	ratio =
-		(window.devicePixelRatio || 1)/
+		(window.devicePixelRatio || 1) /
 		(ctx.webkitBackingStorePixelRatio ||
 			ctx.mozBackingStorePixelRatio ||
 			ctx.msBackingStorePixelRatio ||
@@ -539,8 +522,7 @@ With that, you can multiply the dimensions and locations:
 	width = window.innerWidth*ratio | 0
 	height = window.innerHeight*ratio | 0
 
-	for( var i = 0; i < pointerLength; ++i )
-	{
+	for (var i = 0; i < pointerLength; ++i) {
 		pointersX[i] = pointersX[i]*ratio | 0
 		pointersY[i] = pointersY[i]*ratio | 0
 	}
@@ -555,7 +537,7 @@ Undefined does not mean black.
 
 So when we are using a 2D context with alpha set to false
 
-	ctx.getContext( "2d", { alpha: false } )
+	ctx.getContext("2d", {alpha: false})
 
 to speed up rendering (in theory), it's important to fill the
 canvas explicitly because we never know what background color

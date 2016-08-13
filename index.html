@@ -107,9 +107,11 @@ pre
 	text-align: left;
 }
 
-img
+img,
+video
 {
 	max-width: 100%;
+	max-height: 80vh;
 }
 
 @media screen and (max-width: 400px), screen and (max-height: 400px)
@@ -405,15 +407,13 @@ img
 	<li class="Slide">
 		<a name="slide32" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>html, body
-{
+<pre><code>html, body {
     margin: 0; padding: 0;
     overflow: hidden;
     -ms-touch-action: none;
 }
 
-canvas
-{
+canvas {
     position: fixed;
     left: 0; right: 0;
     top: 0; bottom: 0;
@@ -465,18 +465,18 @@ function init() {}
 	<li class="Slide">
 		<a name="slide36" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function init()
-{
-    if( !(canvas = document.getElementById( "Game" )) ||
-        !(ctx = canvas.getContext( "2d" )) )
+<pre><code>function init() {
+    if (!(canvas = document.getElementById("Game")) ||
+        !(ctx = canvas.getContext("2d"))) {
         return
+    }
 
     window.onresize = resize
     resize()
 
     ...
 
-    last = Date.now()-16
+    last = Date.now() - 16
     run()
 }
 		</div>
@@ -494,8 +494,7 @@ function init() {}
 	<li class="Slide">
 		<a name="slide38" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function resize()
-{
+<pre><code>function resize() {
     canvas.width = width = window.innerWidth
     canvas.height = height = window.innerHeight
 
@@ -516,12 +515,11 @@ function init() {}
 	<li class="Slide">
 		<a name="slide40" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function run()
-{
-    requestAnimationFrame( run )
+<pre><code>function run() {
+    requestAnimationFrame(run)
 
     now = Date.now()
-    factor = (last-now)/16
+    factor = (last - now) / 16
     last = now
 
     input()
@@ -542,14 +540,14 @@ function init() {}
 	<li class="Slide">
 		<a name="slide42" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function input()
-{
-    if( pointersLength &gt; 0 )
-        move( pointersX[0] &gt; playerX ? step : -step )
-    else if( keysDown[37] )
-        move( -step )
-    else if( keysDown[39] )
-        move( step )
+<pre><code>function input() {
+    if (pointersLength &gt; 0) {
+        move(pointersX[0] &gt; playerX ? step : -step)
+    } else if (keysDown[37]) {
+        move(-step)
+    } else if (keysDown[39]) {
+        move(step)
+    }
 }
 		</div>
 		<a href="#slide41" class="Prev">&#9664;</a>
@@ -566,9 +564,8 @@ function init() {}
 	<li class="Slide">
 		<a name="slide44" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function draw()
-{
-    ctx.fillRect( 0, 0, width, height )
+<pre><code>function draw() {
+    ctx.fillRect(0, 0, width, height)
 
     ...
 }
@@ -594,8 +591,7 @@ D.onmousemove = pointerMove
 D.onmouseup = pointerUp
 D.onmouseout = pointerUp
 
-if( "ontouchstart" in D )
-{
+if ("ontouchstart" in D) {
     D.ontouchstart = pointerDown
     D.ontouchmove = pointerMove
     D.ontouchend = pointerUp
@@ -617,19 +613,16 @@ if( "ontouchstart" in D )
 	<li class="Slide">
 		<a name="slide48" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function pointerUp( event )
-{
-    setPointer( event, false )
+<pre><code>function pointerUp(event) {
+    setPointer(event, false)
 }
 
-function pointerMove( event )
-{
-    setPointer( event, pointerLength )
+function pointerMove(event) {
+    setPointer(event, pointerLength)
 }
 
-function pointerDown( event )
-{
-    setPointer( event, true )
+function pointerDown(event) {
+    setPointer(event, true)
 }
 		</div>
 		<a href="#slide47" class="Prev">&#9664;</a>
@@ -646,30 +639,23 @@ function pointerDown( event )
 	<li class="Slide">
 		<a name="slide50" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function setPointer( event, down )
-{
-    if( !down )
-    {
+<pre><code>function setPointer(event, down) {
+    if (!down) {
         pointersLength = event.touches ?
             event.touches.length :
             0
-    }
-    else if( event.touches )
-    {
+    } else if (event.touches) {
         var touches = event.touches
 
         pointersLength = touches.length
 
-        for( var n = pointersLength; n--; )
-        {
+        for(var i = pointersLength; n--;) {
             var t = touches[n];
 
-            pointersX[n] = t.pageX
-            pointersY[n] = t.pageY
+            pointersX[i] = t.pageX
+            pointersY[i] = t.pageY
         }
-    }
-    else
-    {
+    } else {
         pointersLength = 1
         pointersX[0] = event.pageX
         pointersY[0] = event.pageY
@@ -711,20 +697,17 @@ D.onkeyup = keyUp
 	<li class="Slide">
 		<a name="slide54" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function setKey( event, down )
-{
+<pre><code>function setKey(event, down) {
     keysDown[event.keyCode] = down
     event.preventDefault()
 }
 
-function keyUp( event )
-{
-    setKey( event, false )
+function keyUp(event) {
+    setKey(event, false)
 }
 
-function keyDown( event )
-{
-    setKey( event, true )
+function keyDown(event) {
+    setKey(event, true)
 }
 		</div>
 		<a href="#slide53" class="Prev">&#9664;</a>
@@ -767,12 +750,12 @@ function keyDown( event )
 	<li class="Slide">
 		<a name="slide59" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>function scheduleResize()
-{
-    if( resizeTimer )
-        clearTimeout( resizeTimer )
+<pre><code>function scheduleResize() {
+    if (resizeTimer) {
+        clearTimeout(resizeTimer)
+    }
 
-    resizeTimer = setTimeout( resize, 200 )
+    resizeTimer = setTimeout(resize, 200)
 }
 
 document.onresize = scheduleResize
@@ -791,7 +774,7 @@ document.onresize = scheduleResize
 	<li class="Slide">
 		<a name="slide61" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>ctx.drawImage( sprite, x | 0, y | 0 )
+<pre><code>ctx.drawImage(sprite, x | 0, y | 0)
 		</div>
 		<a href="#slide60" class="Prev">&#9664;</a>
 		<a href="#slide62" class="Next">&#9654;</a>
@@ -856,7 +839,7 @@ new Object()
 	<li class="Slide">
 		<a name="slide68" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>ctx.drawImage( sprite, x | 0, y | 0 ).
+<pre><code>ctx.drawImage(sprite, x | 0, y | 0)
 		</div>
 		<a href="#slide67" class="Prev">&#9664;</a>
 		<a href="#slide69" class="Next">&#9654;</a>
@@ -888,7 +871,9 @@ new Object()
 	<li class="Slide">
 		<a name="slide72" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>ctx.drawImage( src, sx, sy, sw, sh, dst, dx, dy, dw, dh )
+<pre><code>ctx.drawImage(
+    src, sx, sy, sw, sh,
+    dst, dx, dy, dw, dh)
 		</div>
 		<a href="#slide71" class="Prev">&#9664;</a>
 		<a href="#slide73" class="Next">&#9654;</a>
@@ -905,7 +890,7 @@ new Object()
 		<a name="slide74" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
 <pre><code>ratio =
-    (window.devicePixelRatio || 1)/
+    (window.devicePixelRatio || 1) /
     (ctx.webkitBackingStorePixelRatio ||
         ctx.mozBackingStorePixelRatio ||
         ctx.msBackingStorePixelRatio ||
@@ -922,8 +907,7 @@ new Object()
 <pre><code>width = window.innerWidth*ratio | 0
 height = window.innerHeight*ratio | 0
 
-for( var i = 0; i &lt; pointerLength; ++i )
-{
+for (var i = 0; i &lt; pointerLength; ++i) {
     pointersX[i] = pointersX[i]*ratio | 0
     pointersY[i] = pointersY[i]*ratio | 0
 }
@@ -942,7 +926,7 @@ for( var i = 0; i &lt; pointerLength; ++i )
 	<li class="Slide">
 		<a name="slide77" class="Anchor">&nbsp;</a>
 		<div class="SlideContent">
-<pre><code>ctx.getContext( "2d", { alpha: false } )
+<pre><code>ctx.getContext("2d", {alpha: false})
 		</div>
 		<a href="#slide76" class="Prev">&#9664;</a>
 		<a href="#slide78" class="Next">&#9654;</a>

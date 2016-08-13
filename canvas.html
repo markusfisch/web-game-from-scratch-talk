@@ -6,15 +6,12 @@
 <title>2D Canvas Game From Scratch</title>
 <style>
 
-html,
-body
-{
+html, body {
 	margin: 0; padding: 0;
 	overflow: hidden;
 }
 
-canvas
-{
+canvas {
 	position: fixed;
 	left: 0; right: 0;
 	top: 0; bottom: 0;
@@ -51,148 +48,134 @@ var M = Math,
 	debrisLength,
 	player
 
-function reset( e )
-{
-	e.x = M.random()*width
+function reset(e) {
+	e.x = M.random() * width
 	e.y = -e.sprite.height
 }
 
-function explode( e )
-{
+function explode(e) {
 	var sprite = e.sprite,
 		w = sprite.width,
 		h = sprite.height,
-		ex = e.x-sprite.centerX,
-		ey = e.y-sprite.centerY,
+		ex = e.x - sprite.centerX,
+		ey = e.y - sprite.centerY,
 		vx = e.vx,
 		vy = e.vy,
 		parts = 5
 
-	for( var n = debrisStart, l = n+debrisLength;
-		n < l && parts > 0;
-		++n )
+	for (var i = debrisStart, l = i + debrisLength;
+		i < l && parts > 0;
+		++i )
 	{
-		var d = entities[n]
+		var d = entities[i]
 
-		if( d.life > 0 )
+		if (d.life > 0) {
 			continue
+		}
 
 		d.life = 1
-		d.x = ex+(M.random()*w | 0)
-		d.y = ey+(M.random()*h | 0)
-		d.vx = vx+M.random()*scaleFactor
-		d.vy = vy+M.max( 1, M.random()*scaleFactor )
+		d.x = ex + (M.random() * w | 0)
+		d.y = ey + (M.random() * h | 0)
+		d.vx = vx + M.random() * scaleFactor
+		d.vy = vy + M.max(1, M.random() * scaleFactor)
 		--parts
 	}
 
-	reset( e )
+	reset(e)
 }
 
-function drawSprite( sprite, x, y )
-{
+function drawSprite(sprite, x, y) {
 	ctx.drawImage(
 		sprite,
 		(x-sprite.centerX) | 0,
-		(y-sprite.centerY) | 0 )
+		(y-sprite.centerY) | 0)
 }
 
-function draw()
-{
+function draw() {
 	ctx.fillStyle = "#000"
-	ctx.fillRect( 0, 0, width, height )
+	ctx.fillRect(0, 0, width, height)
 
 	var playerR = player.sprite.centerX
 
-	for( var n = entitiesLength; n--; )
-	{
-		var e = entities[n],
+	for (var i = entitiesLength; i--;) {
+		var e = entities[i],
 			sprite = e.sprite
 
-		if( e.life <= 0 )
+		if (e.life <= 0) {
 			continue
+		}
 
-		if( e !== player )
-		{
-			e.x += e.vx*factor
-			e.y += e.vy*factor
+		if (e !== player) {
+			e.x += e.vx * factor
+			e.y += e.vy * factor
 
-			if( n >= debrisStart )
-				e.life -= factor*.1
-			else if( e.y > height )
+			if (i >= debrisStart) {
+				e.life -= factor * .1
+			} else if (e.y > height) {
 				explode( e )
-			else if( player.life > 0 )
-			{
-				var dx = player.x-e.x,
-					dy = player.y-e.y,
-					r = sprite.centerX+playerR
+			} else if (player.life > 0) {
+				var dx = player.x - e.x,
+					dy = player.y - e.y,
+					r = sprite.centerX + playerR
 
-				if( M.abs( dx ) < r &&
-					M.abs( dy ) < r &&
-					M.sqrt( dx*dx + dy*dy ) < r )
-					explode( e )
+				if (M.abs(dx) < r &&
+					M.abs(dy) < r &&
+					M.sqrt(dx*dx + dy*dy) < r) {
+					explode(e)
+				}
 			}
 		}
 
-		drawSprite( sprite, e.x, e.y )
+		drawSprite(sprite, e.x, e.y)
 	}
 }
 
-function move( d )
-{
-	player.x += d*factor
+function move(d) {
+	player.x += d * factor
 }
 
-function input()
-{
-	if( pointersLength > 0 )
-	{
-		var dx = pointersX[0]-player.x
+function input() {
+	if (pointersLength > 0) {
+		var dx = pointersX[0] - player.x
 
-		if( M.abs( dx ) > stepX )
-			move( dx > 0 ? stepX : -stepX )
+		if (M.abs(dx) > stepX) {
+			move(dx > 0 ? stepX : -stepX)
+		}
+	} else if (keysDown[37]) {
+		move(-stepX)
+	} else if (keysDown[39]) {
+		move(stepX)
 	}
-	else if( keysDown[37] )
-		move( -stepX )
-	else if( keysDown[39] )
-		move( stepX )
 }
 
-function run()
-{
-	requestAnimationFrame( run )
+function run() {
+	requestAnimationFrame(run)
 
 	now = Date.now()
-	factor = (now-last)/16
+	factor = (now - last) / 16
 	last = now
 
 	input()
 	draw()
 }
 
-function setPointer( event, down )
-{
-	if( !down )
-	{
+function setPointer(event, down) {
+	if (!down) {
 		pointersLength = event.touches ?
 			event.touches.length :
 			0
-	}
-	else if( event.touches )
-	{
+	} else if (event.touches) {
 		var touches = event.touches
 
 		pointersLength = touches.length
 
-		for( var n = pointersLength; n--; )
-		{
-			var t = touches[n]
+		for (var i = pointersLength; i--;) {
+			var t = touches[i]
 
-			pointersX[n] = t.pageX
-			pointersY[n] = t.pageY
+			pointersX[i] = t.pageX
+			pointersY[i] = t.pageY
 		}
-	}
-	else
-	{
+	} else {
 		pointersLength = 1
 		pointersX[0] = event.pageX
 		pointersY[0] = event.pageY
@@ -201,41 +184,34 @@ function setPointer( event, down )
 	event.preventDefault()
 }
 
-function pointerUp( event )
-{
-	setPointer( event, false )
+function pointerUp(event) {
+	setPointer(event, false)
 }
 
-function pointerMove( event )
-{
-	setPointer( event, pointersLength )
+function pointerMove(event) {
+	setPointer(event, pointersLength)
 }
 
-function pointerDown( event )
-{
-	setPointer( event, true )
+function pointerDown(event) {
+	setPointer(event, true)
 }
 
-function setKey( event, down )
-{
+function setKey(event, down) {
 	keysDown[event.keyCode] = down
 	event.preventDefault()
 }
 
-function keyUp( event )
-{
-	setKey( event, false )
+function keyUp(event) {
+	setKey(event, false)
 }
 
-function keyDown( event )
-{
-	setKey( event, true )
+function keyDown(event) {
+	setKey(event, true)
 }
 
-function getSprite( rc )
-{
-	var c = D.createElement( "canvas" ),
-		x = c.getContext( "2d" ),
+function getSprite(rc) {
+	var c = D.createElement("canvas"),
+		x = c.getContext("2d"),
 		w = rc.w*scaleFactor | 0,
 		h = rc.h*scaleFactor | 0
 
@@ -253,62 +229,62 @@ function getSprite( rc )
 		0,
 		0,
 		w,
-		h )
+		h)
 
 	return c
 }
 
-function setup()
-{
-	var playerSprite = getSprite( { x: 0, y: 0, w: 64, h: 64 } ),
-		enemySprite = getSprite( { x: 64, y: 0, w: 64, h: 64 } ),
-		debrisSprite = getSprite( { x: 0, y: 64, w: 32, h: 32 } ),
-		maxSpeed = M.round( height*.005 )
+function setup() {
+	var playerSprite = getSprite({x: 0, y: 0, w: 64, h: 64}),
+		enemySprite = getSprite({x: 64, y: 0, w: 64, h: 64}),
+		debrisSprite = getSprite({x: 0, y: 64, w: 32, h: 32}),
+		maxSpeed = M.round(height * .005)
 
 	entities.length = 0
 
-	for( var n = 10; n--; )
-		entities.push( {
+	for (var i = 10; i--;) {
+		entities.push({
 			sprite: enemySprite,
-			x: M.random()*width | 0,
-			y: (M.random()*height*.01) | 0,
-			vx: M.random()-.5,
-			vy: M.max( 1, M.random()*maxSpeed ),
-			life: 1 } )
+			x: M.random() * width | 0,
+			y: (M.random() * height * .01) | 0,
+			vx: M.random() - .5,
+			vy: M.max(1, M.random() * maxSpeed),
+			life: 1})
+	}
 
-	entities.push( (player = {
+	entities.push((player = {
 		sprite: playerSprite,
 		x: width >> 1,
-		y: height*.9 | 0,
-		life: 1 }) )
+		y: height * .9 | 0,
+		life: 1}))
 
 	debrisStart = entities.length
 	debrisLength = 20
 
-	for( var n = debrisLength; n--; )
-		entities.push( {
+	for (var i = debrisLength; i--;) {
+		entities.push({
 			sprite: debrisSprite,
-			life: 0 } )
+			life: 0})
+	}
 
 	entitiesLength = entities.length
 }
 
-function resize()
-{
+function resize() {
 	canvas.width = width = W.innerWidth
 	canvas.height = height = W.innerHeight
 
-	stepX = M.max( 1, width*.02 | 0 )
-	scaleFactor = M.min( width, height )*.1/64
+	stepX = M.max(1, width * .02 | 0)
+	scaleFactor = M.min(width, height) * .1 / 64
 
 	setup()
 }
 
-function init()
-{
-	if( !(canvas = D.getElementById( "Canvas" )) ||
-		!(ctx = canvas.getContext( "2d" )) )
+function init() {
+	if (!(canvas = D.getElementById("Canvas")) ||
+		!(ctx = canvas.getContext("2d"))) {
 		return
+	}
 
 	W.onresize = resize
 	resize()
@@ -321,8 +297,7 @@ function init()
 	D.onmouseup = pointerUp
 	D.onmouseout = pointerUp
 
-	if( "ontouchstart" in D )
-	{
+	if ("ontouchstart" in D) {
 		D.ontouchstart = pointerDown
 		D.ontouchmove = pointerMove
 		D.ontouchend = pointerUp
@@ -330,12 +305,11 @@ function init()
 		D.ontouchcancel = pointerUp
 	}
 
-	last = Date.now()-16
+	last = Date.now() - 16
 	run()
 }
 
-function load()
-{
+function load() {
 	atlas = new Image()
 	atlas.src = "atlas.png"
 	atlas.onload = init
