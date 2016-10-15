@@ -1,0 +1,807 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width"/>
+<title>3D WebGL Game From Scratch</title>
+<style>
+
+html, body {
+	margin: 0; padding: 0;
+	overflow: hidden;
+}
+
+canvas {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+}
+
+</style>
+</head>
+<body>
+<canvas id="Canvas">Sorry, this browser cannot render this content.</canvas>
+<script id="VertexShader" type="x-shader/x-vertex">
+
+attribute vec3 vertex;
+attribute vec3 normal;
+
+uniform mat4 mvp;
+uniform mat4 mm;
+uniform vec3 light;
+
+varying mediump float intensity;
+
+void main() {
+	gl_Position = mvp * vec4(vertex, 1.);
+	intensity = max(.0, dot(
+		normalize(mat3(
+			// transpose matrix
+			mm[0][0], mm[0][1], mm[0][2],
+			mm[1][0], mm[1][1], mm[1][2],
+			mm[2][0], mm[2][1], mm[2][2]) * normal),
+		normalize(light)));
+}
+
+</script>
+<script id="FragmentShader" type="x-shader/x-fragment">
+
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec4 color;
+
+varying mediump float intensity;
+
+void main() {
+	gl_FragColor = vec4(color.rgb * (.3 + intensity * .7), 1.0);
+}
+
+</script>
+<script>
+
+'use strict'
+
+var M = Math,
+	D = document,
+	W = window,
+	FA = Float32Array,
+	gl,
+	im = new FA([
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1]),
+	pm,
+	vm = new FA(im),
+	cm = new FA(16),
+	m = new FA(16),
+	light = [0, .5, -.5],
+	colorWhite = [1, 1, 1, 1],
+	program,
+	width,
+	height,
+	now,
+	factor,
+	last,
+	pointersLength,
+	pointersX = [],
+	pointersY = [],
+	keysDown = [],
+	shipScale = .05,
+	entitiesLength = 0,
+	entities = [],
+	debrisStart,
+	debrisLength,
+	player,
+	tilt
+
+M.TAU = M.TAU || M.PI * 2
+
+// from https://github.com/toji/gl-matrix
+function invert(out, a) {
+	var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+		a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+		a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+		a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
+		b00 = a00 * a11 - a01 * a10,
+		b01 = a00 * a12 - a02 * a10,
+		b02 = a00 * a13 - a03 * a10,
+		b03 = a01 * a12 - a02 * a11,
+		b04 = a01 * a13 - a03 * a11,
+		b05 = a02 * a13 - a03 * a12,
+		b06 = a20 * a31 - a21 * a30,
+		b07 = a20 * a32 - a22 * a30,
+		b08 = a20 * a33 - a23 * a30,
+		b09 = a21 * a32 - a22 * a31,
+		b10 = a21 * a33 - a23 * a31,
+		b11 = a22 * a33 - a23 * a32,
+		// calculate the determinant
+		d = b00 * b11 -
+			b01 * b10 +
+			b02 * b09 +
+			b03 * b08 -
+			b04 * b07 +
+			b05 * b06
+
+	if (!d) {
+		return null
+	}
+
+	d = 1.0 / d
+
+	out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * d
+	out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * d
+	out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * d
+	out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * d
+	out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * d
+	out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * d
+	out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * d
+	out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * d
+	out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * d
+	out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * d
+	out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * d
+	out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * d
+	out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * d
+	out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * d
+	out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * d
+	out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * d
+}
+
+// from https://github.com/toji/gl-matrix
+function multiply(out, a, b) {
+	var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+		a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+		a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+		a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15]
+
+	// cache only the current line of the second matrix
+	var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3]
+	out[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30
+	out[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31
+	out[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32
+	out[3] = b0*a03 + b1*a13 + b2*a23 + b3*a33
+
+	b0 = b[4]; b1 = b[5]; b2 = b[6]; b3 = b[7]
+	out[4] = b0*a00 + b1*a10 + b2*a20 + b3*a30
+	out[5] = b0*a01 + b1*a11 + b2*a21 + b3*a31
+	out[6] = b0*a02 + b1*a12 + b2*a22 + b3*a32
+	out[7] = b0*a03 + b1*a13 + b2*a23 + b3*a33
+
+	b0 = b[8]; b1 = b[9]; b2 = b[10]; b3 = b[11]
+	out[8] = b0*a00 + b1*a10 + b2*a20 + b3*a30
+	out[9] = b0*a01 + b1*a11 + b2*a21 + b3*a31
+	out[10] = b0*a02 + b1*a12 + b2*a22 + b3*a32
+	out[11] = b0*a03 + b1*a13 + b2*a23 + b3*a33
+
+	b0 = b[12]; b1 = b[13]; b2 = b[14]; b3 = b[15]
+	out[12] = b0*a00 + b1*a10 + b2*a20 + b3*a30
+	out[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31
+	out[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32
+	out[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33
+}
+
+// from https://github.com/toji/gl-matrix
+function rotate(out, a, rad, x, y, z) {
+	var len = M.sqrt(x * x + y * y + z * z),
+		s, c, t,
+		a00, a01, a02, a03,
+		a10, a11, a12, a13,
+		a20, a21, a22, a23,
+		b00, b01, b02,
+		b10, b11, b12,
+		b20, b21, b22
+
+	if (M.abs(len) < 0.000001) {
+		return
+	}
+
+	len = 1 / len
+	x *= len
+	y *= len
+	z *= len
+
+	s = M.sin(rad)
+	c = M.cos(rad)
+	t = 1 - c
+
+	a00 = a[0]; a01 = a[1]; a02 = a[2]; a03 = a[3]
+	a10 = a[4]; a11 = a[5]; a12 = a[6]; a13 = a[7]
+	a20 = a[8]; a21 = a[9]; a22 = a[10]; a23 = a[11]
+
+	// construct the elements of the rotation matrix
+	b00 = x * x * t + c; b01 = y * x * t + z * s; b02 = z * x * t - y * s
+	b10 = x * y * t - z * s; b11 = y * y * t + c; b12 = z * y * t + x * s
+	b20 = x * z * t + y * s; b21 = y * z * t - x * s; b22 = z * z * t + c
+
+	// perform rotation-specific matrix multiplication
+	out[0] = a00 * b00 + a10 * b01 + a20 * b02
+	out[1] = a01 * b00 + a11 * b01 + a21 * b02
+	out[2] = a02 * b00 + a12 * b01 + a22 * b02
+	out[3] = a03 * b00 + a13 * b01 + a23 * b02
+	out[4] = a00 * b10 + a10 * b11 + a20 * b12
+	out[5] = a01 * b10 + a11 * b11 + a21 * b12
+	out[6] = a02 * b10 + a12 * b11 + a22 * b12
+	out[7] = a03 * b10 + a13 * b11 + a23 * b12
+	out[8] = a00 * b20 + a10 * b21 + a20 * b22
+	out[9] = a01 * b20 + a11 * b21 + a21 * b22
+	out[10] = a02 * b20 + a12 * b21 + a22 * b22
+	out[11] = a03 * b20 + a13 * b21 + a23 * b22
+
+	if (a !== out) {
+		// if the source and destination differ, copy the unchanged last row
+		out[12] = a[12]
+		out[13] = a[13]
+		out[14] = a[14]
+		out[15] = a[15]
+	}
+}
+
+// from https://github.com/toji/gl-matrix
+function scale(out, a, x, y, z) {
+	out[0] = a[0] * x
+	out[1] = a[1] * x
+	out[2] = a[2] * x
+	out[3] = a[3] * x
+	out[4] = a[4] * y
+	out[5] = a[5] * y
+	out[6] = a[6] * y
+	out[7] = a[7] * y
+	out[8] = a[8] * z
+	out[9] = a[9] * z
+	out[10] = a[10] * z
+	out[11] = a[11] * z
+	out[12] = a[12]
+	out[13] = a[13]
+	out[14] = a[14]
+	out[15] = a[15]
+}
+
+// from https://github.com/toji/gl-matrix
+function translate(out, a, x, y, z) {
+	if (a === out) {
+		out[12] = a[0] * x + a[4] * y + a[8] * z + a[12]
+		out[13] = a[1] * x + a[5] * y + a[9] * z + a[13]
+		out[14] = a[2] * x + a[6] * y + a[10] * z + a[14]
+		out[15] = a[3] * x + a[7] * y + a[11] * z + a[15]
+	} else {
+		var a00, a01, a02, a03,
+			a10, a11, a12, a13,
+			a20, a21, a22, a23
+
+		a00 = a[0]; a01 = a[1]; a02 = a[2]; a03 = a[3]
+		a10 = a[4]; a11 = a[5]; a12 = a[6]; a13 = a[7]
+		a20 = a[8]; a21 = a[9]; a22 = a[10]; a23 = a[11]
+
+		out[0] = a00; out[1] = a01; out[2] = a02; out[3] = a03
+		out[4] = a10; out[5] = a11; out[6] = a12; out[7] = a13
+		out[8] = a20; out[9] = a21; out[10] = a22; out[11] = a23
+
+		out[12] = a00 * x + a10 * y + a20 * z + a[12]
+		out[13] = a01 * x + a11 * y + a21 * z + a[13]
+		out[14] = a02 * x + a12 * y + a22 * z + a[14]
+		out[15] = a03 * x + a13 * y + a23 * z + a[15]
+	}
+}
+
+function reset(out) {
+	translate(out, im,
+		(M.random() - .5),
+		4 - M.random() * .5,
+		0)
+	rotate(out, out, M.PI, 0, 0, 1)
+	scale(out, out, shipScale, shipScale, shipScale)
+}
+
+function explode(that) {
+	var tm = that.matrix,
+		tx = tm[12],
+		ty = tm[13],
+		tz = tm[14]
+
+	for (var i = debrisStart, l = i + debrisLength, parts = 5;
+			i < l && parts > 0;
+			++i) {
+		var e = entities[i]
+
+		if (e.life > 0) {
+			continue
+		}
+		e.life = 2
+
+		var em = e.matrix
+		translate(em, im, tx, ty, tz)
+		e.rx = M.random()
+		e.ry = M.random()
+		e.rz = M.random()
+		e.ra = M.random() * .001
+		rotate(em, em, M.random() * M.TAU,
+			e.rx,
+			e.ry,
+			e.rz)
+		var s = .015 + M.random() * .025
+		scale(em, em, s, s, s)
+		e.vx = (M.random() - .5) * .1
+		e.vy = (M.random() - .8) * .1
+		e.vz = M.random() * -.1
+		--parts
+	}
+
+	reset(that.matrix)
+}
+
+function drawModel(mm, model, uniforms, color) {
+	multiply(m, vm, mm)
+	multiply(m, pm, m)
+
+	gl.uniformMatrix4fv(uniforms.mvp, gl.FALSE, m)
+	gl.uniformMatrix4fv(uniforms.mm, gl.FALSE, mm)
+	gl.uniform4fv(uniforms.color, color)
+
+	gl.drawElements(
+		gl.TRIANGLES,
+		model.numberOfVertices,
+		gl.UNSIGNED_SHORT,
+		0)
+}
+
+function bindModel(attribs, model) {
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertices)
+	gl.vertexAttribPointer(
+		attribs.vertex,
+		3,
+		gl.FLOAT,
+		gl.FALSE,
+		0,
+		0)
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normals)
+	gl.vertexAttribPointer(
+		attribs.normal,
+		3,
+		gl.FLOAT,
+		gl.FALSE,
+		0,
+		0)
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indicies)
+}
+
+function sqDist(a, b) {
+	var dx = a[12] - b[12],
+		dy = a[13] - b[13],
+		dz = a[14] - b[14]
+	return dx*dx + dy*dy + dz*dz
+}
+
+function copy(out, a) {
+	for (var i = 16; i--;) {
+		out[i] = a[i]
+	}
+}
+
+function draw() {
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.useProgram(program)
+
+	var uniforms = program.uniforms,
+		attribs = program.attribs
+
+	gl.uniform3fv(uniforms.light, light)
+
+	for (var mm, model, i = entitiesLength,
+			px = player.x,
+			py = player.y; i--;) {
+		var e = entities[i]
+
+		if (e.life <= 0) {
+			continue
+		}
+
+		mm = e.matrix
+
+		if (e !== player) {
+			translate(
+				e.matrix,
+				e.matrix,
+				e.vx * factor,
+				e.vy * factor,
+				e.vz * factor)
+
+			if (i >= debrisStart) {
+				e.life -= factor * .1
+			} else if (e.matrix[13] < -.1) {
+				reset(e.matrix)
+			} else if (player.life > 0 &&
+					sqDist(player.matrix, e.matrix) < .01) {
+				explode(e)
+			}
+		} else if (tilt != 0) {
+			copy(m, e.matrix)
+			rotate(m, m, tilt < 0 ? -.6 : .6, 0, 1, 0)
+			mm = m
+		}
+
+		if (model != e.model) {
+			model = e.model
+			bindModel(attribs, model)
+		}
+
+		drawModel(mm, model, uniforms, e.color)
+	}
+}
+
+function move(d) {
+	translate(player.matrix, player.matrix, d * factor, 0, 0)
+	tilt = d
+}
+
+function input() {
+	tilt = 0
+
+	var stepX = .5
+	if (pointersLength > 0) {
+		var dx = ((pointersX[0] / width) - .5) * 2 - player.matrix[12]
+
+		if (M.abs(dx) > .1) {
+			move(dx > 0 ? stepX : -stepX)
+		}
+	} else if (keysDown[37]) {
+		move(-stepX)
+	} else if (keysDown[39]) {
+		move(stepX)
+	}
+}
+
+function run() {
+	requestAnimationFrame(run)
+
+	now = Date.now()
+	factor = (now - last) / 16
+	last = now
+
+	input()
+	draw()
+}
+
+function setPointer(event, down) {
+	if (!down) {
+		pointersLength = event.touches ?
+			event.touches.length :
+			0
+	} else if (event.touches) {
+		var touches = event.touches
+		pointersLength = touches.length
+
+		for (var i = pointersLength; i--;) {
+			var t = touches[i]
+
+			pointersX[i] = t.pageX
+			pointersY[i] = t.pageY
+		}
+	} else {
+		pointersLength = 1
+		pointersX[0] = event.pageX
+		pointersY[0] = event.pageY
+	}
+
+	event.preventDefault()
+}
+
+function pointerUp(event) {
+	setPointer(event, false)
+}
+
+function pointerMove(event) {
+	setPointer(event, pointersLength)
+}
+
+function pointerDown(event) {
+	setPointer(event, true)
+}
+
+function setKey(event, down) {
+	keysDown[event.keyCode] = down
+	event.preventDefault()
+}
+
+function keyUp(event) {
+	setKey(event, false)
+}
+
+function keyDown(event) {
+	setKey(event, true)
+}
+
+function resize() {
+	width = gl.canvas.clientWidth
+	height = gl.canvas.clientHeight
+
+	gl.canvas.width = width
+	gl.canvas.height = height
+	gl.viewport(0, 0, width, height)
+
+	var aspect = width / height,
+		near = .1,
+		far = 100,
+		r = near - far,
+		f = 1 / M.tan(M.PI * .125)
+
+	pm = new FA([
+		f / aspect, 0, 0, 0,
+		0, f, 0, 0,
+		0, 0, (far + near) / r, -1,
+		0, 0, (2 * far * near) / r, 0])
+
+	invert(cm, vm)
+}
+
+function cacheUniformLocations(program, uniforms) {
+	if (program.uniforms === undefined) {
+		program.uniforms = {}
+	}
+	for (var i = 0, l = uniforms.length; i < l; ++i) {
+		var name = uniforms[i]
+		program.uniforms[name] = gl.getUniformLocation(program, name)
+	}
+}
+
+function cacheAttribLocations(program, attribs) {
+	if (program.attribs === undefined) {
+		program.attribs = {}
+	}
+	for (var i = 0, l = attribs.length; i < l; ++i) {
+		var name = attribs[i]
+		program.attribs[name] = gl.getAttribLocation(program, name)
+		gl.enableVertexAttribArray(program.attribs[name])
+	}
+}
+
+function compileShader(src, type) {
+	var shader = gl.createShader(type)
+	gl.shaderSource(shader, src)
+	gl.compileShader(shader)
+
+	return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ?
+		shader :
+		null
+}
+
+function linkProgram(vs, fs) {
+	var p
+	if ((p = gl.createProgram())) {
+		gl.attachShader(p, vs)
+		gl.attachShader(p, fs)
+		gl.linkProgram(p)
+
+		if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+			gl.deleteProgram(p)
+			p = null
+		}
+	}
+
+	return p
+}
+
+function buildProgram(vertexSource, fragmentSource) {
+	var p, vs, fs
+	if ((vs = compileShader(vertexSource, gl.VERTEX_SHADER))) {
+		if ((fs = compileShader(fragmentSource, gl.FRAGMENT_SHADER))) {
+			p = linkProgram(vs, fs)
+			gl.deleteShader(fs)
+		}
+		gl.deleteShader(vs)
+	}
+
+	return p
+}
+
+function calculateNormals(vertices, indicies) {
+	var normals = []
+
+	for (var i = 0, l = indicies.length; i < l;) {
+		var a = indicies[i++] * 3,
+			b = indicies[i++] * 3,
+			c = indicies[i++] * 3,
+			x1 = vertices[a],
+			y1 = vertices[a + 1],
+			z1 = vertices[a + 2],
+			x2 = vertices[b],
+			y2 = vertices[b + 1],
+			z2 = vertices[b + 2],
+			x3 = vertices[c],
+			y3 = vertices[c + 1],
+			z3 = vertices[c + 2],
+			ux = x2 - x1,
+			uy = y2 - y1,
+			uz = z2 - z1,
+			vx = x3 - x1,
+			vy = y3 - y1,
+			vz = z3 - z1,
+			nx = uy * vz - uz * vy,
+			ny = uz * vx - ux * vz,
+			nz = ux * vy - uy * vx
+
+		normals[a] = nx
+		normals[a + 1] = ny
+		normals[a + 2] = nz
+
+		normals[b] = nx
+		normals[b + 1] = ny
+		normals[b + 2] = nz
+
+		normals[c] = nx
+		normals[c + 1] = ny
+		normals[c + 2] = nz
+	}
+
+	return normals
+}
+
+function createModel(vertices, indicies) {
+	var model = {numberOfVertices: indicies.length}
+
+	model.vertices = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertices)
+	gl.bufferData(gl.ARRAY_BUFFER,
+		new FA(vertices),
+		gl.STATIC_DRAW)
+
+	model.normals = gl.createBuffer()
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.normals)
+	gl.bufferData(gl.ARRAY_BUFFER,
+		new FA(calculateNormals(vertices, indicies)),
+		gl.STATIC_DRAW)
+
+	model.indicies = gl.createBuffer()
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indicies)
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+		new Uint16Array(indicies),
+		gl.STATIC_DRAW)
+
+	return model
+}
+
+function createTriangle() {
+	return createModel([
+		0, 1, 0,
+		-1, -1, .1,
+		1, -1, .1,
+	],[
+		0, 1, 2,
+	])
+}
+
+function createShip() {
+	return createModel([
+		/*      up
+		 *       +1 top                    0
+		 *         \ +1                    +
+		 *          \|                    /|\
+		 * left -1 --o-- +1 right        / | \
+		 *           |\                 /  |  \
+		 *          -1 \             1 +---+---+ 2
+		 *          btm -1                3/4
+		 *              down
+		 */
+		0, 1, 0, // 0
+		-1, -1, 0, // 1
+		1, -1, 0, // 2
+		0, -1, .2, // 3
+		0, -1, -.2, // 4
+	],[
+		0, 3, 1, // left top
+		0, 2, 3, // right top
+		0, 4, 1, // left bottom
+		0, 2, 4, // right bottom
+		1, 3, 4, // left back
+		3, 2, 4, // right back
+	])
+}
+
+function createEntities() {
+	var tri = createTriangle(),
+		ship = createShip()
+
+	for (var i = 10; i--;) {
+		reset(m)
+		entities.push({
+			model: ship,
+			matrix: new FA(m),
+			color: colorWhite,
+			vx: (M.random() - .5) * .001,
+			vy: .08 + M.random() * .08,
+			vz: 0,
+			life: 1,
+		})
+	}
+
+	scale(m, im, shipScale, shipScale, shipScale)
+	entities.push((player = {
+		model: ship,
+		matrix: new FA(m),
+		color: colorWhite,
+		life: 1,
+	}))
+
+	debrisStart = entities.length
+	debrisLength = 20
+
+	for (var i = debrisLength; i--;) {
+		entities.push({
+			model: tri,
+			matrix: new FA(im),
+			color: colorWhite,
+			life: 0,
+		})
+	}
+
+	entitiesLength = entities.length
+
+	// set up view matrix to look at the player from top and behind
+	translate(vm, vm, 0, -.3, -1)
+	rotate(vm, vm, -1, 1, 0, 0)
+}
+
+function getContext() {
+	for (var canvas = D.getElementById('Canvas'),
+			ctx,
+			types = ['webgl', 'experimental-webgl'],
+			l = types.length,
+			i = 0; i < l; ++i) {
+		if ((ctx = canvas.getContext(types[i], {alpha: false}))) {
+			return ctx
+		}
+	}
+}
+
+function init() {
+	if (!(gl = getContext()) || !(program = buildProgram(
+			D.getElementById('VertexShader').textContent,
+			D.getElementById('FragmentShader').textContent))) {
+		alert('WebGL not available')
+		return
+	}
+
+	createEntities()
+	cacheAttribLocations(program, [
+		'vertex',
+		'normal'])
+	cacheUniformLocations(program, [
+		'mvp',
+		'mm',
+		'light',
+		'color'])
+
+	gl.enable(gl.DEPTH_TEST)
+	gl.clearColor(0, 0, 0, 1)
+
+	W.onresize = resize
+	resize()
+
+	D.onkeydown = keyDown
+	D.onkeyup = keyUp
+
+	D.onmousedown = pointerDown
+	D.onmousemove = pointerMove
+	D.onmouseup = pointerUp
+	D.onmouseout = pointerUp
+
+	if ('ontouchstart' in D) {
+		D.ontouchstart = pointerDown
+		D.ontouchmove = pointerMove
+		D.ontouchend = pointerUp
+		D.ontouchleave = pointerUp
+		D.ontouchcancel = pointerUp
+	}
+
+	last = Date.now() - 16
+	run()
+}
+
+W.onload = init
+
+</script>
+</body>
+</html>
