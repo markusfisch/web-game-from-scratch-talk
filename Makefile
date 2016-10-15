@@ -1,2 +1,2 @@
-slides:
-	takahashi notes.md > index.html
+index.html: notes.md
+	takahashi $^ > $@
