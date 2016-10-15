@@ -6,8 +6,9 @@ A Web Game From Scratch For A Game Jam
 Because it runs everywhere.
 Because you want your game to be played.
 
-A web game does not require installation or download.
-Simply type http my cool game dot com and you're good to go.
+A web game does not require installation.
+Simply type my cool game dot com and here we go.
+On anything with a web browser.
 
 ## What is a Game Jam?
 
@@ -94,8 +95,8 @@ artists out there. Great inspiration.
 Why is upscaling important? Well, in order to support as many screens
 as possible, it's best to span the canvas over the full viewport.
 
-Working with a fixed size canvas doesn't work well on mobile devices
-for obvious reasons.
+Working with a fixed size canvas inside a bigger document doesn't work
+very well on mobile devices for obvious reasons.
 
 In order to render on a canvas with undefined size and proportions,
 you'll want to scale your assets up or down depending on the size of
@@ -104,18 +105,23 @@ the canvas.
 If you're making a platformer, the player entity should always have
 the same relative size to the height of the canvas for example.
 
-Traditionally, upscaling images in a browser gives blurry results
+But traditionally, upscaling images in a browser gives blurry results
 unfortunately. This is very unwanted for pixel art, of course.
 
 Until recently, the only way to scale an image up and have crisp edges was
 to manually rebuild the bigger image from the smaller one. Pixel by pixel.
-It's not that bad as it sounds because you'd do that only once, when your
+It's not as bad as it sounds because you'd do that only once; before your
 game starts. And it can also be a possibility to fine tune those pixels.
 
-Now, there's also a new CSS property to tell the browser you want
-to scale pixelated:
+Now there's a CSS property to tell the browser you want to scale
+pixelated:
 
-image-rendering: pixelated;
+	image-rendering: pixelated;
+
+Alternatively you may use the imageSmoothingEnabled property of
+CanvasRenderingContext2D to do the same for a given context:
+
+	context.imageSmoothingEnabled = false;
 
 ## High DPI
 
@@ -149,6 +155,17 @@ Well, not easily that is. More on that later.
 
 Scaling is at the very heart of WebGL.
 So no problems with blurred images there.
+Just use gl.NEAREST for Pixel Art:
+
+	gl.texParameteri(
+		gl.TEXTURE_2D,
+		gl.TEXTURE_MIN_FILTER,
+		gl.NEAREST)
+	gl.texParameteri(
+		gl.TEXTURE_2D,
+		gl.TEXTURE_MAG_FILTER,
+		gl.NEAREST)
+
 But WebGL requires some background.
 
 ## Canvas, DOM, SVG oder WebGL?
@@ -163,7 +180,7 @@ If you want to render a lot of elements, there's no alternative.
 And WebGL is supported by default now.
 But that doesn't mean it runs on all devices, of course.
 
-It's modern graphics programming. You have GLSL shaders and you translate,
+It's modern graphics programming. You have shaders and you translate,
 scale and rotate by matrix math. Requires some background on the topic.
 
 ## Canvas is okay
@@ -177,7 +194,7 @@ But if you don't have too many elements, it can be okay.
 Support is much better than WebGL and you can reach even older
 smartphones, computers and maybe even your TV or fridge.
 
-It's classical graphic programming. 0/0 is in the left/top corner,
+It's classical graphics programming. 0/0 is in the left/top corner,
 you can have alpha blending and drawing primitives is slow, of course.
 
 ## DOM only for a few elements
@@ -193,7 +210,7 @@ and every image format browsers know.
 ## What about SVG?
 
 Since it's always slower to draw shapes than to copy memory (images),
-don't expect too much. But if you have realtively few, very dynamic elements,
+don't expect too much. But if you have relatively few, very dynamic elements,
 it can be an option. Here are some interesting examples:
 
 * [Simple SVG Game](http://david.blob.core.windows.net/html5graphics/010_SimpleGame_SVGVersion.htm) ([Canvas implementation](http://david.blob.core.windows.net/html5graphics/009_SimpleGame_CanvasVersion.htm))
@@ -204,7 +221,7 @@ it can be an option. Here are some interesting examples:
 Now that we have an overview, we want to have a look on the anatomy of
 a simple 2D Canvas game.
 
-We're going to use Canvas because its very often the best choice between
+We're going to use Canvas because it's very often the best choice between
 support and performance. But that always depends on the game you want
 to make. Especially on how many moving elements that game requires.
 
@@ -236,13 +253,13 @@ to make. Especially on how many moving elements that game requires.
 
 	canvas {
 		position: fixed;
-		left: 0; right: 0;
-		top: 0; bottom: 0;
+		width: 100%;
+		height: 100%;
 	}
 
 ### JavaScript
 
-	"use strict"
+	'use strict'
 
 	var canvas,
 		ctx,
@@ -263,8 +280,8 @@ to make. Especially on how many moving elements that game requires.
 ### Init
 
 	function init() {
-		if (!(canvas = document.getElementById("Game")) ||
-			!(ctx = canvas.getContext("2d"))) {
+		if (!(canvas = document.getElementById('Game')) ||
+				!(ctx = canvas.getContext('2d'))) {
 			return
 		}
 
@@ -328,7 +345,7 @@ to make. Especially on how many moving elements that game requires.
 	D.onmouseup = pointerUp
 	D.onmouseout = pointerUp
 
-	if ("ontouchstart" in D) {
+	if ('ontouchstart' in D) {
 		D.ontouchstart = pointerDown
 		D.ontouchmove = pointerMove
 		D.ontouchend = pointerUp
@@ -350,7 +367,7 @@ to make. Especially on how many moving elements that game requires.
 		setPointer(event, true)
 	}
 
-### Set pointer
+### Set pointers
 
 	function setPointer(event, down) {
 		if (!down) {
@@ -362,7 +379,7 @@ to make. Especially on how many moving elements that game requires.
 
 			pointersLength = touches.length
 
-			for(var i = pointersLength; n--;) {
+			for (var i = pointersLength; n--;) {
 				var t = touches[n];
 
 				pointersX[i] = t.pageX
@@ -401,26 +418,29 @@ to make. Especially on how many moving elements that game requires.
 
 ## Demo
 
-That was a lot of boring code. Now have a look at all that in action:
+That was a lot of boring code.
+Now have a look at all that in action:
 
 * [Canvas](http://markusfisch.github.io/web-game-from-scratch-talk/canvas.html)
-* [WebGL](http://markusfisch.github.io/web-game-from-scratch-talk/webgl.html)
+* [WebGL 2D](http://markusfisch.github.io/web-game-from-scratch-talk/webgl.html)
 
 View the source.
 
 ## Tips
 
-### Schedule onresize events
+### Keep it simple!
 
-	function scheduleResize() {
-		if (resizeTimer) {
-			clearTimeout(resizeTimer)
-		}
+IIFE ([Immediately-Invoked Function Expression](http://benalman.com/news/2010/11/immediately-invoked-function-expression))
+doesn't make much sense on a single page game.
 
-		resizeTimer = setTimeout(resize, 200)
-	}
+Don't overcomplicate things. Favor pure functions over OO.
+OO usually means a lot of allocations and lookups.
+For a small, simple game, it's just not worth the overhead.
 
-	document.onresize = scheduleResize
+As everybody knows, keeping things simple is the key to good software
+and a time constraint competition is not an exception.
+
+Start as simple as possible.
 
 ### All numbers are floats!
 
@@ -477,16 +497,48 @@ Working with (rastered) images is always the fastest way to draw.
 Scaling and rotating are expensive operations in Canvas.
 It's better to prerender those transformations and simply use those images.
 
-### Keep it simple!
+### Schedule onresize events
 
-IIFE ([Immediately-Invoked Function Expression](http://benalman.com/news/2010/11/immediately-invoked-function-expression))
-doesn't make much sense on a single page game.
+	function scheduleResize() {
+		if (resizeTimer) {
+			clearTimeout(resizeTimer)
+		}
 
-Don't overcomplicate things. Try not to use OO.
-For a small, simple game, it's just not worth the overhead.
+		resizeTimer = setTimeout(resize, 200)
+	}
 
-As everybody knows, keeping things simple is the key to good software
-and a time constraint competition is not an exception.
+	document.onresize = scheduleResize
+
+### Run in Full Screen Mode on Mobile Devices
+
+If you want your game to run in full-screen mode on mobile devices,
+you need to add meta tags for iOS and manifest files for Chrome and
+Firefox on Android.
+
+### Meta Tags on iOS
+
+For iOS, and this works only if the game is started from the home screen
+(after it was added there):
+
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+
+### manifest.webapp for Chrome on Android
+
+	{
+		"name": "...",
+		"installs_allowed_from": ["*"],
+		"fullscreen": "true"
+		...
+	}
+
+### manifest.json for Firefox
+
+	{
+		"start_url": "index.html",
+		"display": "standalone"
+		...
+	}
 
 ### Texture atlas
 
@@ -519,16 +571,16 @@ ratio between "web" pixels and true pixels:
 
 With that, you can multiply the dimensions and locations:
 
-	width = window.innerWidth*ratio | 0
-	height = window.innerHeight*ratio | 0
+	width = window.innerWidth * ratio | 0
+	height = window.innerHeight * ratio | 0
 
 	for (var i = 0; i < pointerLength; ++i) {
-		pointersX[i] = pointersX[i]*ratio | 0
-		pointersY[i] = pointersY[i]*ratio | 0
+		pointersX[i] = pointersX[i] * ratio | 0
+		pointersY[i] = pointersY[i] * ratio | 0
 	}
 
-The reason why there is a devicePixelRatio and a backingStorePixelRatio,
-you can read [here](http://phoboslab.org/log/2012/09/drawing-pixels-is-hard).
+Read [here](http://phoboslab.org/log/2012/09/drawing-pixels-is-hard) why
+there is devicePixelRatio and backingStorePixelRatio.
 
 ### ctx.fillRect() versus ctx.clearRect()
 
@@ -550,7 +602,7 @@ To speed up drawing, you may draw the immovable background in a background
 Canvas element and the action in a Canvas element on top of it.
 
 Since browsers are very good at composing elements, this can be quite
-effective.
+performant.
 
 ### Avoid State-Changes
 
@@ -595,6 +647,7 @@ It's really great big fun to write your own game!
 * [Canvas Cheat Sheet](https://simon.html5.org/dump/html5-canvas-cheat-sheet.html)
 * [HTML5 Game Devs](http://www.html5gamedevs.com)
 * [SVG guide](http://www.sitepoint.com/the-complete-guide-to-building-html5-games-with-canvas-and-svg)
+* [Guide to HTML5 Canvas Libraries](https://ihatetomatoes.net/guide-to-html5-canvas-javascript-libraries/)
 
 ## Questions?
 
