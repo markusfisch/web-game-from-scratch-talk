@@ -13,8 +13,8 @@ html, body {
 
 canvas {
 	position: fixed;
-	left: 0; right: 0;
-	top: 0; bottom: 0;
+	width: 100%;
+	height: 100%;
 }
 
 </style>
@@ -23,7 +23,7 @@ canvas {
 <canvas id="Canvas">Sorry, this browser cannot render this content.</canvas>
 <script>
 
-"use strict"
+'use strict'
 
 var M = Math,
 	D = document,
@@ -64,9 +64,8 @@ function explode(e) {
 		parts = 5
 
 	for (var i = debrisStart, l = i + debrisLength;
-		i < l && parts > 0;
-		++i )
-	{
+			i < l && parts > 0;
+			++i) {
 		var d = entities[i]
 
 		if (d.life > 0) {
@@ -92,12 +91,13 @@ function drawSprite(sprite, x, y) {
 }
 
 function draw() {
-	ctx.fillStyle = "#000"
+	ctx.fillStyle = '#000'
 	ctx.fillRect(0, 0, width, height)
 
-	var playerR = player.sprite.centerX
-
-	for (var i = entitiesLength; i--;) {
+	for (var i = entitiesLength,
+			ps = player.sprite.centerX,
+			px = player.x,
+			py = player.y; i--;) {
 		var e = entities[i],
 			sprite = e.sprite
 
@@ -114,13 +114,13 @@ function draw() {
 			} else if (e.y > height) {
 				explode( e )
 			} else if (player.life > 0) {
-				var dx = player.x - e.x,
-					dy = player.y - e.y,
-					r = sprite.centerX + playerR
+				var dx = px - e.x,
+					dy = py - e.y,
+					d = sprite.centerX + ps
 
-				if (M.abs(dx) < r &&
-					M.abs(dy) < r &&
-					M.sqrt(dx*dx + dy*dy) < r) {
+				if (M.abs(dx) < d &&
+						M.abs(dy) < d &&
+						M.sqrt(dx*dx + dy*dy) < d) {
 					explode(e)
 				}
 			}
@@ -210,10 +210,10 @@ function keyDown(event) {
 }
 
 function getSprite(rc) {
-	var c = D.createElement("canvas"),
-		x = c.getContext("2d"),
-		w = rc.w*scaleFactor | 0,
-		h = rc.h*scaleFactor | 0
+	var c = D.createElement('canvas'),
+		x = c.getContext('2d'),
+		w = rc.w * scaleFactor | 0,
+		h = rc.h * scaleFactor | 0
 
 	c.width = w
 	c.height = h
@@ -281,8 +281,8 @@ function resize() {
 }
 
 function init() {
-	if (!(canvas = D.getElementById("Canvas")) ||
-		!(ctx = canvas.getContext("2d"))) {
+	if (!(canvas = D.getElementById('Canvas')) ||
+			!(ctx = canvas.getContext('2d'))) {
 		return
 	}
 
@@ -297,7 +297,7 @@ function init() {
 	D.onmouseup = pointerUp
 	D.onmouseout = pointerUp
 
-	if ("ontouchstart" in D) {
+	if ('ontouchstart' in D) {
 		D.ontouchstart = pointerDown
 		D.ontouchmove = pointerMove
 		D.ontouchend = pointerUp
@@ -311,7 +311,7 @@ function init() {
 
 function load() {
 	atlas = new Image()
-	atlas.src = "atlas.png"
+	atlas.src = 'atlas.png'
 	atlas.onload = init
 }
 

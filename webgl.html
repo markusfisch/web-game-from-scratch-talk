@@ -13,8 +13,8 @@ html, body {
 
 canvas {
 	position: fixed;
-	left: 0; right: 0;
-	top: 0; bottom: 0;
+	width: 100%;
+	height: 100%;
 }
 
 </style>
@@ -33,8 +33,8 @@ varying vec2 textureUV;
 
 void main() {
 	gl_Position = vec4(
-		perspective*
-		transformation*
+		perspective *
+		transformation *
 		vec3(vertexPosition, 1.), 1.);
 
 	textureUV = texturePosition;
@@ -60,11 +60,12 @@ void main() {
 </script>
 <script>
 
-"use strict"
+'use strict'
 
 var M = Math,
 	D = document,
 	W = window,
+	FA = Float32Array,
 	atlas,
 	sprites = {},
 	canvas,
@@ -110,9 +111,9 @@ function explode(e) {
 		vy = e.vy,
 		parts = 5
 
-	for (var i = debrisStart, l = i+debrisLength;
-		i < l && parts > 0;
-		++i) {
+	for (var i = debrisStart, l = i + debrisLength;
+			i < l && parts > 0;
+			++i) {
 		var d = entities[i]
 
 		if (d.life > 0) {
@@ -186,8 +187,10 @@ function draw()
 
 	var playerR = player.sprite.w
 
-	for (var i = entitiesLength; i--;)
-	{
+	for (var i = entitiesLength,
+			ps = player.sprite.w,
+			px = player.x,
+			py = player.y; i--;) {
 		var e = entities[i],
 			sprite = e.sprite
 
@@ -204,13 +207,13 @@ function draw()
 			} else if (e.y < -ratio) {
 				explode(e)
 			} else if (player.life > 0) {
-				var dx = player.x - e.x,
-					dy = player.y - e.y,
-					r = sprite.w + playerR
+				var dx = px - e.x,
+					dy = py - e.y,
+					d = sprite.w + ps
 
-				if (M.abs(dx) < r &&
-					M.abs(dy) < r &&
-					M.sqrt(dx*dx + dy*dy) < r) {
+				if (M.abs(dx) < d &&
+						M.abs(dy) < d &&
+						M.sqrt(dx*dx + dy*dy) < d) {
 					explode(e)
 				}
 			}
@@ -225,8 +228,8 @@ function move(d) {
 }
 
 function input() {
-	if (pointersLength > 0)
-	{
+	var stepX = .04
+	if (pointersLength > 0) {
 		var dx = ((pointersX[0] / width) - .5) * 2 - player.x
 
 		if (M.abs(dx) > stepX) {
@@ -257,7 +260,6 @@ function setPointer(event, down) {
 			0
 	} else if (event.touches) {
 		var touches = event.touches
-
 		pointersLength = touches.length
 
 		for (var i = pointersLength; i--;) {
@@ -301,7 +303,7 @@ function keyDown(event) {
 }
 
 function scale(sprite) {
-	var size = sprite.size*scaleFactor
+	var size = sprite.size * scaleFactor
 
 	sprite.w = size
 	sprite.h = size * sprite.ratio
@@ -317,7 +319,7 @@ function setup() {
 	var maxSpeed = ratio * -.01
 
 	for (var i = 10; i--;) {
-		entities.push( {
+		entities.push({
 			sprite: sprites.enemy,
 			x: (M.random() - .5) * 2,
 			y: ratio + M.random() * .01,
@@ -346,7 +348,6 @@ function setup() {
 
 function compileShader(src, type) {
 	var shader = gl.createShader(type)
-
 	gl.shaderSource(shader, src)
 	gl.compileShader(shader)
 
@@ -357,7 +358,6 @@ function compileShader(src, type) {
 
 function linkProgram(vs, fs) {
 	var p
-
 	if ((p = gl.createProgram())) {
 		gl.attachShader(p, vs)
 		gl.attachShader(p, fs)
@@ -374,16 +374,12 @@ function linkProgram(vs, fs) {
 }
 
 function buildProgram(vertexSource, fragmentSource) {
-	var p,
-		vs,
-		fs
-
+	var p, vs, fs
 	if ((vs = compileShader(vertexSource, gl.VERTEX_SHADER))) {
-		if ((fs = compileShader(fragmentSource, gl.FRAGMENT_SHADER ))) {
+		if ((fs = compileShader(fragmentSource, gl.FRAGMENT_SHADER))) {
 			p = linkProgram(vs, fs)
 			gl.deleteShader(fs)
 		}
-
 		gl.deleteShader(vs)
 	}
 
@@ -397,12 +393,12 @@ function resize() {
 	ratio = height / width
 	scaleFactor = M.min(1, ratio) * .1 / 64
 
-	perspective = new Float32Array([
+	perspective = new FA([
 		1, 0, 0,
-		0, width/height, 0,
+		0, width / height, 0,
 		0, 0, 1])
 
-	transformation = new Float32Array([
+	transformation = new FA([
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1])
@@ -444,10 +440,10 @@ function calculateSpriteRects() {
 			y = rc.y,
 			w = rc.w,
 			h = rc.h,
-			l = xf*x,
-			t = yf*y,
-			r = xf*(x+w),
-			b = yf*(y+h)
+			l = xf * x,
+			t = yf * y,
+			r = xf * (x + w),
+			b = yf * (y + h)
 
 		sprites[name] = {
 			index: index++,
@@ -473,7 +469,7 @@ function initBuffers(program) {
 	vertexPositionBuffer = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer)
 	gl.bufferData(gl.ARRAY_BUFFER,
-		new Float32Array([
+		new FA([
 			-1, 1,
 			-1, -1,
 			1, 1,
@@ -489,7 +485,7 @@ function initBuffers(program) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, texturePositionBuffer)
 	gl.bufferData(
 		gl.ARRAY_BUFFER,
-		new Float32Array(calculateSpriteRects()),
+		new FA(calculateSpriteRects()),
 		gl.STATIC_DRAW)
 
 	texturePositionLoc = gl.getAttribLocation(
@@ -499,14 +495,12 @@ function initBuffers(program) {
 }
 
 function createTextureFrom(image) {
-	var t = gl.createTexture()
-
-	if (t < 1) {
+	var id = gl.createTexture()
+	if (id < 1) {
 		return
 	}
 
-	gl.bindTexture(gl.TEXTURE_2D, t)
-
+	gl.bindTexture(gl.TEXTURE_2D, id)
 	gl.texImage2D(
 		gl.TEXTURE_2D,
 		0,
@@ -525,10 +519,9 @@ function createTextureFrom(image) {
 		gl.LINEAR)
 
 	gl.generateMipmap(gl.TEXTURE_2D)
-
 	gl.bindTexture(gl.TEXTURE_2D, null)
 
-	return t
+	return id
 }
 
 function init() {
@@ -549,7 +542,7 @@ function init() {
 	}
 
 	if (!(texture = createTextureFrom(atlas))) {
-		alert("Cannot initialize atlas texture")
+		alert('Cannot initialize atlas texture')
 		return
 	}
 
@@ -571,7 +564,7 @@ function init() {
 	D.onmouseup = pointerUp
 	D.onmouseout = pointerUp
 
-	if ("ontouchstart" in D) {
+	if ('ontouchstart' in D) {
 		D.ontouchstart = pointerDown
 		D.ontouchmove = pointerMove
 		D.ontouchend = pointerUp
@@ -585,7 +578,7 @@ function init() {
 
 function load() {
 	atlas = new Image()
-	atlas.src = "atlas.png"
+	atlas.src = 'atlas.png'
 	atlas.onload = init
 }
 
@@ -594,4 +587,3 @@ W.onload = load
 </script>
 </body>
 </html>
-
