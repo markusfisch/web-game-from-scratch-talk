@@ -371,17 +371,13 @@ to make. Especially on how many moving elements that game requires.
 
 	function setPointer(event, down) {
 		if (!down) {
-			pointersLength = event.touches ?
-				event.touches.length :
-				0
+			pointersLength = event.touches ? event.touches.length : 0
 		} else if (event.touches) {
 			var touches = event.touches
-
 			pointersLength = touches.length
 
 			for (var i = pointersLength; n--;) {
 				var t = touches[n];
-
 				pointersX[i] = t.pageX
 				pointersY[i] = t.pageY
 			}
