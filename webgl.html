@@ -158,6 +158,9 @@ function drawSprite(sprite, x, y) {
 }
 
 function initFrame() {
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.useProgram(program)
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer)
 	gl.vertexAttribPointer(
 		vertexPositionLoc,
@@ -175,9 +178,6 @@ function initFrame() {
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, texture)
 	gl.uniform1i(textureLoc, 0)
-
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.useProgram(program)
 }
 
 function draw() {
