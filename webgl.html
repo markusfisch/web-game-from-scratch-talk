@@ -351,8 +351,8 @@ function compileShader(src, type) {
 }
 
 function linkProgram(vs, fs) {
-	var p
-	if ((p = gl.createProgram())) {
+	var p = gl.createProgram()
+	if (p) {
 		gl.attachShader(p, vs)
 		gl.attachShader(p, fs)
 
