@@ -22,30 +22,21 @@ canvas {
 <body>
 <canvas id="Canvas">Sorry, this browser cannot render this content.</canvas>
 <script id="VertexShader" type="x-shader/x-vertex">
-
 attribute vec3 vertex;
 attribute vec3 normal;
 
 uniform mat4 mvp;
-uniform mat4 mm;
+uniform mat4 nm;
 uniform vec3 light;
 
 varying mediump float intensity;
 
 void main() {
 	gl_Position = mvp * vec4(vertex, 1.);
-	intensity = max(.0, dot(
-		normalize(mat3(
-			// transpose matrix
-			mm[0][0], mm[0][1], mm[0][2],
-			mm[1][0], mm[1][1], mm[1][2],
-			mm[2][0], mm[2][1], mm[2][2]) * normal),
-		normalize(light)));
+	intensity = max(0., dot(normalize(mat3(nm) * normal), light));
 }
-
 </script>
 <script id="FragmentShader" type="x-shader/x-fragment">
-
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -59,7 +50,6 @@ varying mediump float intensity;
 void main() {
 	gl_FragColor = vec4(color.rgb * (.3 + intensity * .7), 1.0);
 }
-
 </script>
 <script>
 
@@ -77,10 +67,10 @@ var M = Math,
 		0, 0, 0, 1]),
 	pm,
 	vm = new FA(im),
-	cm = new FA(16),
+	nm = new FA(im),
+	mvp = new FA(im),
 	m = new FA(16),
-	light = [0, .5, -.5],
-	colorWhite = [1, 1, 1, 1],
+	lightDirection = [.5, .5, 1],
 	program,
 	width,
 	height,
@@ -287,6 +277,44 @@ function translate(out, a, x, y, z) {
 	}
 }
 
+// from https://github.com/toji/gl-matrix
+function transpose(out, a) {
+	if (out === a) {
+		var a01 = a[1], a02 = a[2], a03 = a[3],
+			a12 = a[6], a13 = a[7], a23 = a[11]
+
+		out[1] = a[4]
+		out[2] = a[8]
+		out[3] = a[12]
+		out[4] = a01
+		out[6] = a[9]
+		out[7] = a[13]
+		out[8] = a02
+		out[9] = a12
+		out[11] = a[14]
+		out[12] = a03
+		out[13] = a13
+		out[14] = a23
+	} else {
+		out[0] = a[0]
+		out[1] = a[4]
+		out[2] = a[8]
+		out[3] = a[12]
+		out[4] = a[1]
+		out[5] = a[5]
+		out[6] = a[9]
+		out[7] = a[13]
+		out[8] = a[2]
+		out[9] = a[6]
+		out[10] = a[10]
+		out[11] = a[14]
+		out[12] = a[3]
+		out[13] = a[7]
+		out[14] = a[11]
+		out[15] = a[15]
+	}
+}
+
 function reset(out) {
 	translate(out, im,
 		(M.random() - .5),
@@ -334,37 +362,26 @@ function explode(that) {
 }
 
 function drawModel(mm, model, uniforms, color) {
-	multiply(m, vm, mm)
-	multiply(m, pm, m)
+	multiply(mvp, vm, mm)
+	multiply(mvp, pm, mvp)
 
-	gl.uniformMatrix4fv(uniforms.mvp, gl.FALSE, m)
-	gl.uniformMatrix4fv(uniforms.mm, gl.FALSE, mm)
+	// we need to invert and transpose the model matrix so the
+	// normals are scaled correctly
+	invert(nm, mm)
+	transpose(nm, nm)
+
+	gl.uniformMatrix4fv(uniforms.mvp, gl.FALSE, mvp)
+	gl.uniformMatrix4fv(uniforms.nm, gl.FALSE, nm)
 	gl.uniform4fv(uniforms.color, color)
 
-	gl.drawElements(
-		gl.TRIANGLES,
-		model.numberOfVertices,
-		gl.UNSIGNED_SHORT,
-		0)
+	gl.drawElements(gl.TRIANGLES, model.count, gl.UNSIGNED_SHORT, 0)
 }
 
 function bindModel(attribs, model) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertices)
-	gl.vertexAttribPointer(
-		attribs.vertex,
-		3,
-		gl.FLOAT,
-		gl.FALSE,
-		0,
-		0)
+	gl.vertexAttribPointer(attribs.vertex, 3, gl.FLOAT, gl.FALSE, 0, 0)
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.normals)
-	gl.vertexAttribPointer(
-		attribs.normal,
-		3,
-		gl.FLOAT,
-		gl.FALSE,
-		0,
-		0)
+	gl.vertexAttribPointer(attribs.normal, 3, gl.FLOAT, gl.FALSE, 0, 0)
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indicies)
 }
 
@@ -388,7 +405,7 @@ function draw() {
 	var uniforms = program.uniforms,
 		attribs = program.attribs
 
-	gl.uniform3fv(uniforms.light, light)
+	gl.uniform3fv(uniforms.light, lightDirection)
 
 	for (var mm, model, i = entitiesLength,
 			px = player.x,
@@ -484,6 +501,7 @@ function setPointer(event, down) {
 	}
 
 	event.preventDefault()
+	event.stopPropagation()
 }
 
 function pointerUp(event) {
@@ -511,14 +529,7 @@ function keyDown(event) {
 	setKey(event, true)
 }
 
-function resize() {
-	width = gl.canvas.clientWidth
-	height = gl.canvas.clientHeight
-
-	gl.canvas.width = width
-	gl.canvas.height = height
-	gl.viewport(0, 0, width, height)
-
+function setProjectionMatrix() {
 	var aspect = width / height,
 		near = .1,
 		far = 100,
@@ -530,8 +541,17 @@ function resize() {
 		0, f, 0, 0,
 		0, 0, (far + near) / r, -1,
 		0, 0, (2 * far * near) / r, 0])
+}
 
-	invert(cm, vm)
+function resize() {
+	width = gl.canvas.clientWidth
+	height = gl.canvas.clientHeight
+
+	gl.canvas.width = width
+	gl.canvas.height = height
+	gl.viewport(0, 0, width, height)
+
+	setProjectionMatrix()
 }
 
 function cacheUniformLocations(program, uniforms) {
@@ -559,10 +579,7 @@ function compileShader(src, type) {
 	var shader = gl.createShader(type)
 	gl.shaderSource(shader, src)
 	gl.compileShader(shader)
-
-	return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ?
-		shader :
-		null
+	return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null
 }
 
 function linkProgram(vs, fs) {
@@ -577,7 +594,6 @@ function linkProgram(vs, fs) {
 			p = null
 		}
 	}
-
 	return p
 }
 
@@ -590,7 +606,6 @@ function buildProgram(vertexSource, fragmentSource) {
 		}
 		gl.deleteShader(vs)
 	}
-
 	return p
 }
 
@@ -637,7 +652,7 @@ function calculateNormals(vertices, indicies) {
 }
 
 function createModel(vertices, indicies) {
-	var model = {numberOfVertices: indicies.length}
+	var model = {count: indicies.length}
 
 	model.vertices = gl.createBuffer()
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertices)
@@ -663,8 +678,8 @@ function createModel(vertices, indicies) {
 function createTriangle() {
 	return createModel([
 		0, 1, 0,
-		-1, -1, .1,
-		1, -1, .1,
+		-1, -1, 0,
+		1, -1, 0,
 	],[
 		0, 1, 2,
 	])
@@ -688,17 +703,19 @@ function createShip() {
 		0, -1, .2, // 3
 		0, -1, -.2, // 4
 	],[
-		0, 3, 1, // left top
-		0, 2, 3, // right top
-		0, 4, 1, // left bottom
-		0, 2, 4, // right bottom
-		1, 3, 4, // left back
-		3, 2, 4, // right back
+		// in counter-clockwise order, vertices share normals
+		0, 1, 3, // left top
+		0, 3, 2, // right top
+		0, 1, 4, // left bottom
+		0, 4, 2, // right bottom
+		1, 4, 3, // left back
+		3, 4, 2, // right back
 	])
 }
 
 function createEntities() {
-	var tri = createTriangle(),
+	var colorWhite = [1, 1, 1, 1],
+		tri = createTriangle(),
 		ship = createShip()
 
 	for (var i = 10; i--;) {
@@ -762,14 +779,8 @@ function init() {
 	}
 
 	createEntities()
-	cacheAttribLocations(program, [
-		'vertex',
-		'normal'])
-	cacheUniformLocations(program, [
-		'mvp',
-		'mm',
-		'light',
-		'color'])
+	cacheAttribLocations(program, ['vertex', 'normal'])
+	cacheUniformLocations(program, ['mvp', 'nm', 'light', 'color'])
 
 	gl.enable(gl.DEPTH_TEST)
 	gl.clearColor(0, 0, 0, 1)
