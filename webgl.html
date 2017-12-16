@@ -134,12 +134,7 @@ function explode(e) {
 
 function drawSprite(sprite, x, y) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, texturePositionBuffer)
-	gl.vertexAttribPointer(
-		texturePositionLoc,
-		2,
-		gl.FLOAT,
-		gl.FALSE,
-		0,
+	gl.vertexAttribPointer(texturePositionLoc, 2, gl.FLOAT, gl.FALSE, 0,
 		sprite.index << 5)
 
 	transformation[0] =
@@ -149,10 +144,7 @@ function drawSprite(sprite, x, y) {
 	transformation[6] = x
 	transformation[7] = y
 
-	gl.uniformMatrix3fv(
-		transformationLoc,
-		gl.FALSE,
-		transformation)
+	gl.uniformMatrix3fv(transformationLoc, gl.FALSE, transformation)
 
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 }
@@ -162,18 +154,9 @@ function initFrame() {
 	gl.useProgram(program)
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer)
-	gl.vertexAttribPointer(
-		vertexPositionLoc,
-		2,
-		gl.FLOAT,
-		gl.FALSE,
-		0,
-		0)
+	gl.vertexAttribPointer(vertexPositionLoc, 2, gl.FLOAT, gl.FALSE, 0, 0)
 
-	gl.uniformMatrix3fv(
-		perspectiveLoc,
-		gl.FALSE,
-		perspective)
+	gl.uniformMatrix3fv(perspectiveLoc, gl.FALSE, perspective)
 
 	gl.activeTexture(gl.TEXTURE0)
 	gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -345,9 +328,7 @@ function compileShader(src, type) {
 	gl.shaderSource(shader, src)
 	gl.compileShader(shader)
 
-	return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ?
-		shader :
-		null
+	return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null
 }
 
 function linkProgram(vs, fs) {
