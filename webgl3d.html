@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 <title>3D WebGL Game From Scratch</title>
 <style>
 
@@ -22,6 +22,7 @@ canvas {
 <body>
 <canvas id="Canvas">Sorry, this browser cannot render this content.</canvas>
 <script id="VertexShader" type="x-shader/x-vertex">
+
 attribute vec3 vertex;
 attribute vec3 normal;
 
@@ -35,8 +36,10 @@ void main() {
 	gl_Position = mvp * vec4(vertex, 1.);
 	intensity = max(0., dot(normalize(mat3(nm) * normal), light));
 }
+
 </script>
 <script id="FragmentShader" type="x-shader/x-fragment">
+
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -50,6 +53,7 @@ varying mediump float intensity;
 void main() {
 	gl_FragColor = vec4(color.rgb * (.3 + intensity * .7), 1.0);
 }
+
 </script>
 <script>
 

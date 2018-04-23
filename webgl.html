@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
 <title>2D WebGL Game From Scratch</title>
 <style>
 
@@ -137,8 +137,7 @@ function drawSprite(sprite, x, y) {
 	gl.vertexAttribPointer(texturePositionLoc, 2, gl.FLOAT, gl.FALSE, 0,
 		sprite.index << 5)
 
-	transformation[0] =
-		transformation[8] = sprite.w
+	transformation[0] = sprite.w
 	transformation[4] = sprite.h
 
 	transformation[6] = x
